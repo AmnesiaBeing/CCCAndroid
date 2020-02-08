@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">传传传</string>
+    <string name="title_add_tag_activity">加加加</string>
+    <string name="title_scan_QRCode_activity">扫扫扫</string>
+    <string name="help">添加新标签↑</string>
+    <string name="function">功能</string>
+    <string name="plus">添加</string>
+    <string name="fun_recvclipboard">获取远端剪贴板</string>
+    <string name="fun_sendclipboard">分享本机剪贴板</string>
+    <string name="fun_sendfile">发送文件（未实现）</string>
+    <string name="fun_recvfile">接收文件（未实现）</string>
+    <string name="fun_sharescreen">屏幕传输（未实现）</string>
+    <string name="step0">步骤0：打开电脑端管理程序。</string>
+    <string name="step1">步骤1：扫描屏幕上的二维码。</string>
+    <string name="step2">步骤2：将手机靠近NFC标签。</string>
+    <string name="tip_add_tag">请按照下述步骤完成操作：</string>
+    <string name="imok">程序已打开</string>
+    <string name="scanQRCode">二维码扫描</string>
+    <string name="rationale_camera">请求照相机权限。</string>
+    <string name="scanQRCode_tip_ok">将二维码放入框内，即可自动扫描</string>
+    <string name="scanQRCode_tip_dark">环境过暗，请打开闪光灯</string>
+    <string name="scanQRCode_tip_error">打开相机出错</string>
+    <string name="finish_add_tag">写卡操作毕</string>
+</resources>
