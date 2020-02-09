@@ -27,13 +27,17 @@
             android:textSize="35sp" />
 
         <CheckBox
+            android:id="@+id/cb_send_clipboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:tag="SendClipboard"
             android:text="@string/fun_sendclipboard" />
 
         <CheckBox
+            android:id="@+id/cb_recv_clipboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:tag="RecvClipboard"
             android:text="@string/fun_recvclipboard" />
 
         <Button
@@ -50,6 +54,47 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/fun_sharescreen" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="默认连接方式：" />
+
+            <RadioGroup
+                android:id="@+id/rg_trans_method"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/rb_trans_method_auto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="自动" />
+
+                <RadioButton
+                    android:id="@+id/rb_trans_method_wlan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="优先使用WLAN" />
+
+                <RadioButton
+                    android:id="@+id/rb_trans_method_p2p"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="优先使用WLAN直连" />
+
+                <RadioButton
+                    android:id="@+id/rb_trans_method_bt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="优先使用蓝牙" />
+            </RadioGroup>
+        </LinearLayout>
 
     </LinearLayout>
 

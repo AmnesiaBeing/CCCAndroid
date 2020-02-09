@@ -3,11 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="edu.cuc.readnfctag2share">
 
+    <!--近场通讯功能使用权限-->
     <uses-permission android:name="android.permission.NFC" />
+    <!--震动权限-->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!--读写存储设备权限-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--建立蓝牙连接和传输权限-->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <!--扫描蓝牙设备或修改蓝牙设置权限-->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!--Android 6.0及后续版本扫描蓝牙,需要定位权限(进入GPS设置,可以看到蓝牙定位)-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -17,7 +30,8 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".ui.MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -26,11 +40,12 @@
         </activity>
         <activity
             android:name=".ui.NewTAGActivity"
-            android:label="@string/title_add_tag_activity"
-            android:launchMode="singleTop" />
+            android:label="@string/title_add_tag_activity" />
         <activity
             android:name=".ui.ScanQRCodeActivity"
             android:label="@string/title_scan_QRCode_activity" />
+
+        <service android:name=".backends.BackendService" />
     </application>
 
 </manifest>

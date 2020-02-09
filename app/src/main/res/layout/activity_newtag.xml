@@ -51,6 +51,11 @@
             android:layout_gravity="center"
             android:drawableStart="@drawable/ic_camera_alt_black_24dp"
             android:text="@string/scanQRCode" />
+
+        <TextView
+            android:id="@+id/tv_scan_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
