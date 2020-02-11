@@ -53,15 +53,22 @@ public class BackendService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-            Command cmd = (Command) msg.obj;
-            Log.i(TAG, "handleMessage" + cmd.name());
+            Command cmd = Command.values()[msg.arg1];
+            Log.i(TAG, "handleMessage: " + cmd.name());
             switch (cmd) {
                 case CMD_NONE:
                     break;
                 case CMD_START:
-
+                    // 读取上一次使用的设备Info，尝试连接
+                    Message msg1 = new Message();
+                    msg1.arg1 = Command.CMD_FINDDEVICE.ordinal();
+                    msg1.obj = msg.obj;
+                    serviceHandler.sendMessage(msg1);
                     break;
                 case CMD_DESTROY:
+                    break;
+                case CMD_FINDDEVICE:
+                    // 尝试连接设备
                     break;
             }
             if (mCallback != null) {
@@ -74,9 +81,11 @@ public class BackendService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Command cmd = (Command) intent.getSerializableExtra("command");
-        Log.i(TAG, "onStartCommand:" + cmd.name());
+        if (cmd == null) cmd = Command.CMD_NONE;
+        Log.i(TAG, "onStartCommand: " + cmd.name());
         Message msg = new Message();
-        msg.obj = cmd;
+        msg.arg1 = cmd.ordinal();
+        msg.obj = intent.getSerializableExtra("extra");
         serviceHandler.sendMessage(msg);
         return START_STICKY;
     }
@@ -153,6 +162,7 @@ public class BackendService extends Service {
     public enum Command {
         CMD_NONE,   // 0:总感觉如果没有个0撑着会出问题
         CMD_START,
-        CMD_DESTROY
+        CMD_DESTROY,
+        CMD_FINDDEVICE
     }
 }

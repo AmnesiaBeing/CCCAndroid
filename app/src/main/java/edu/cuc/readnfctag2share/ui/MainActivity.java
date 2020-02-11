@@ -13,6 +13,10 @@ import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import edu.cuc.readnfctag2share.R;
 import edu.cuc.readnfctag2share.backends.BackendService;
 import edu.cuc.readnfctag2share.helpers.BackendServiceHelper;
@@ -71,10 +75,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.app_bar_add:
-//                startActivity(new Intent(this, NewTAGActivity.class));
-                Intent intent = new Intent(this, BackendService.class);
-                intent.putExtra("command", "aaa");
-                startService(intent);
+                startActivity(new Intent(this, NewTAGActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -117,6 +118,12 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 .setChecked(true);
     }
 
+    private final int[] map = new int[]{
+            R.id.rb_trans_method_auto, R.id.rb_trans_method_wlan,
+            R.id.rb_trans_method_p2p, R.id.rb_trans_method_bt
+    };
+
+    // 不会改成map啊
     private int TransMethodID2Index(int id) {
         int value = 0;
         switch (id) {
@@ -137,9 +144,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     }
 
     private int TransMethodIndex2ID(int value) {
-        final int[] map = new int[]{
-                R.id.rb_trans_method_auto, R.id.rb_trans_method_wlan,
-                R.id.rb_trans_method_p2p, R.id.rb_trans_method_bt};
         if (value > map.length || value < 0) value = 0;
         return map[value];
     }

@@ -22,4 +22,5 @@
     <string name="scanQRCode_tip_error">打开相机出错</string>
     <string name="finish_add_tag">写卡操作毕</string>
     <string name="preference_file_key">mySharedPreferences</string>
+    <string name="err_QRCode">二维码数据不正确</string>
 </resources>

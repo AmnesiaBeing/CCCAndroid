@@ -17,6 +17,8 @@ public class NFCHelper {
     private IntentFilter[] mFilters;
     private String[][] mTechLists;
 
+    private NFCTagWriteListener mListener;
+
     public NFCHelper(Activity activity) {
         this.mActivity = activity;
         mAdapter = NfcAdapter.getDefaultAdapter(mActivity);
@@ -50,5 +52,14 @@ public class NFCHelper {
 
     public boolean isEnableNFC() {
         return mAdapter.isEnabled();
+    }
+
+    public void setNFCTagWriteListener(NFCTagWriteListener listener) {
+        mListener = listener;
+    }
+
+    public interface NFCTagWriteListener {
+        void onWriteCompleted();
+//        void onWriteError();
     }
 }
