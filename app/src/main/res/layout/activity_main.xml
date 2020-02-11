@@ -50,10 +50,10 @@
             android:layout_height="wrap_content"
             android:text="@string/fun_recvfile" />
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/fun_sharescreen" />
+<!--        <Button-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/fun_sharescreen" />-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,19 +80,19 @@
                     android:id="@+id/rb_trans_method_wlan"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="优先使用WLAN" />
+                    android:text="优先使用WLAN（这是必须的）" />
 
                 <RadioButton
                     android:id="@+id/rb_trans_method_p2p"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="优先使用WLAN直连" />
+                    android:text="优先使用WLAN直连（未实现）" />
 
                 <RadioButton
                     android:id="@+id/rb_trans_method_bt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="优先使用蓝牙" />
+                    android:text="优先使用蓝牙（未实现）" />
             </RadioGroup>
         </LinearLayout>
 

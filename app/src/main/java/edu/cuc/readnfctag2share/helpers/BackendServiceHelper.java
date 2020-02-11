@@ -48,7 +48,7 @@ public class BackendServiceHelper {
 //        mContext.unbindService(connection);
 //        mBound = false;
         Intent intent = new Intent(mContext, BackendService.class);
-        intent.putExtra("command", "destroy");
+        intent.putExtra("command", BackendService.Command.CMD_DESTROY);
         mContext.startService(intent);
     }
 }

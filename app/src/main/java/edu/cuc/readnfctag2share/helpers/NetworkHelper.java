@@ -1,4 +1,5 @@
 package edu.cuc.readnfctag2share.helpers;
 
-public class WLANHelper {
+public class NetworkHelper {
+
 }

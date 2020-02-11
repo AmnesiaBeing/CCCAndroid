@@ -5,6 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -22,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import edu.cuc.readnfctag2share.R;
+import edu.cuc.readnfctag2share.helpers.BTHelper;
+import edu.cuc.readnfctag2share.helpers.NSDHelper;
 import edu.cuc.readnfctag2share.helpers.NotificationHelper;
 import edu.cuc.readnfctag2share.ui.MainActivity;
 
@@ -35,9 +39,11 @@ public class BackendService extends Service {
     private Looper serviceLooper;
     private ServiceHandler serviceHandler;
 
-    private NotificationHelper notificationHelper = new NotificationHelper(this);
-
     private BackendServiceCallbackInterface mCallback;
+
+    private NotificationHelper notificationHelper;
+    private BTHelper btHelper;
+    private NSDHelper nsdHelper;
 
     // 感觉有点不太对，程序运行的模型暂时没有思考好
     private final class ServiceHandler extends Handler {
@@ -47,35 +53,47 @@ public class BackendService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-            Log.i(TAG, "handleMessage");
+            Command cmd = (Command) msg.obj;
+            Log.i(TAG, "handleMessage" + cmd.name());
+            switch (cmd) {
+                case CMD_NONE:
+                    break;
+                case CMD_START:
+
+                    break;
+                case CMD_DESTROY:
+                    break;
+            }
             if (mCallback != null) {
                 mCallback.BackendServiceCallback();
             }
-            stopSelf();
         }
     }
 
+    // startService(intent)-->here-->handleMessage
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Bundle bundle = intent.getExtras();
-        if (bundle != null) {
-            String cmd = bundle.getString("command");
-            Log.i(TAG, "onStartCommand: " + cmd);
-            if (cmd.equals("destroy")) {
-
-            } else {
-                Message msg = serviceHandler.obtainMessage();
-                msg.arg1 = startId;
-                serviceHandler.sendMessage(msg);
-            }
-        }
+        Command cmd = (Command) intent.getSerializableExtra("command");
+        Log.i(TAG, "onStartCommand:" + cmd.name());
+        Message msg = new Message();
+        msg.obj = cmd;
+        serviceHandler.sendMessage(msg);
         return START_STICKY;
     }
 
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
+        notificationHelper = new NotificationHelper(this);
         notificationHelper.onCreate();
+
+        btHelper = new BTHelper(this);
+        btHelper.onCreate();
+
+        nsdHelper = new NSDHelper(this);
+        nsdHelper.initializeResolveListener();
+        nsdHelper.initializeDiscoveryListener();
+        nsdHelper.discoveryServices();
 
         HandlerThread thread = new HandlerThread("Service");
         thread.start();
@@ -87,6 +105,8 @@ public class BackendService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
         notificationHelper.onDestroy();
+        btHelper.onDestroy();
+        nsdHelper.onDestroy();
     }
 
     private final IBinder binder = new BackendServiceBinder();
@@ -110,6 +130,7 @@ public class BackendService extends Service {
         }
     }
 
+
     public void setBackendServiceCallback(BackendServiceCallbackInterface backendServiceCallback) {
         mCallback = backendServiceCallback;
     }
@@ -120,11 +141,18 @@ public class BackendService extends Service {
 
     public static void startBackendService(Context context) {
         Intent intent = new Intent(context, BackendService.class);
+        intent.putExtra("command", Command.CMD_START);
         context.startForegroundService(intent);
     }
 
     public static void bindBackendService(Context context, ServiceConnection connection) {
         Intent intent = new Intent(context, BackendService.class);
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    public enum Command {
+        CMD_NONE,   // 0:总感觉如果没有个0撑着会出问题
+        CMD_START,
+        CMD_DESTROY
     }
 }
