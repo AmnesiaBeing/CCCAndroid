@@ -19,9 +19,3 @@ Linux系统与安卓系统通讯的软件很少，很多时候我只是想把复
 ## 开源协议
 
 研究了一下，MIT吧。
-
-## 参考资料
-
-还是中文资料看着舒服。
-
-1. [Android传统蓝牙开发](https://lioil.win/2018/05/19/Android-Bluetooth.html)
