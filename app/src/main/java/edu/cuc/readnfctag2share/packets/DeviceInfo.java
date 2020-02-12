@@ -183,7 +183,7 @@ public class DeviceInfo implements Parcelable {
             deviceInfo.setDeviceMACAddress(addrs);
             return deviceInfo;
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return null;
         }
     }
@@ -194,7 +194,8 @@ public class DeviceInfo implements Parcelable {
         LAN,
         WLAN,
         BT,
-        BLE
+        // 低功耗蓝牙设备带宽太小，就暂时不考虑了
+//        BLE
     }
 
     public static class MACAddr implements Serializable {

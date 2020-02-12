@@ -1,18 +1,13 @@
 package edu.cuc.readnfctag2share.backends;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -21,18 +16,22 @@ import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
-import edu.cuc.readnfctag2share.R;
+import java.net.InetAddress;
+
 import edu.cuc.readnfctag2share.helpers.BTHelper;
-import edu.cuc.readnfctag2share.helpers.NSDHelper;
+import edu.cuc.readnfctag2share.helpers.NetworkHelper;
 import edu.cuc.readnfctag2share.helpers.NotificationHelper;
-import edu.cuc.readnfctag2share.ui.MainActivity;
+import edu.cuc.readnfctag2share.helpers.SharedPreferencesHelper;
+import edu.cuc.readnfctag2share.packets.DeviceInfo;
 
 // 后（前）台服务，感觉这个数据不好走啊，流程贼复杂
 // Activity-->onCreate||onStart-->Helper-->bind||setCallback
 // Activity-->Helper-->commands-->onStartCommand-->doSth-->Handler-->Callback-->Activity
-public class BackendService extends Service {
+// 先判断网络是否处于wifi已连接状态，如果是，则通过arp协议或者NSD获取地址？
+// 如果不是，判断是否可以通过WLAN直连连接
+// 如果不是，判断是否可以通过蓝牙连接
+public class BackendService extends Service implements NsdManager.ResolveListener {
 
     private static final String TAG = BackendService.class.getSimpleName();
 
@@ -43,9 +42,10 @@ public class BackendService extends Service {
 
     private NotificationHelper notificationHelper;
     private BTHelper btHelper;
-    private NSDHelper nsdHelper;
+    private NSDHandler nsdHandler;
+    private NetworkHelper networkHelper;
 
-    // 感觉有点不太对，程序运行的模型暂时没有思考好
+    // 负责控制流程的handler，负责达成连接关系，不负责数据传输
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
             super(looper);
@@ -58,17 +58,19 @@ public class BackendService extends Service {
             switch (cmd) {
                 case CMD_NONE:
                     break;
-                case CMD_START:
-                    // 读取上一次使用的设备Info，尝试连接
-                    Message msg1 = new Message();
-                    msg1.arg1 = Command.CMD_FINDDEVICE.ordinal();
-                    msg1.obj = msg.obj;
-                    serviceHandler.sendMessage(msg1);
-                    break;
                 case CMD_DESTROY:
                     break;
-                case CMD_FINDDEVICE:
-                    // 尝试连接设备
+                case CMD_START:
+                    // 读取上一次使用的设备Info，设置为目标连接设备
+                    DeviceInfo lastDevice = DeviceInfo.parseJSONStr(SharedPreferencesHelper.getApplicationSharedPreferences().getString("LastDevice", null));
+                    nsdHandler.setTargetDevice(lastDevice);
+                    break;
+                case CMD_CONNECT_DEVICE:
+                    // 尝试连接设备，设备的MAC地址存放在msg的obj中，类型为DeviceInfo
+                    DeviceInfo device = (DeviceInfo) msg.obj;
+                    if (device == null) return;
+                    // TODO:根据连接优先级重新调整结构体中，mac顺序
+                    nsdHandler.setTargetDevice(device);
                     break;
             }
             if (mCallback != null) {
@@ -80,6 +82,7 @@ public class BackendService extends Service {
     // startService(intent)-->here-->handleMessage
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) return START_STICKY;
         Command cmd = (Command) intent.getSerializableExtra("command");
         if (cmd == null) cmd = Command.CMD_NONE;
         Log.i(TAG, "onStartCommand: " + cmd.name());
@@ -99,10 +102,10 @@ public class BackendService extends Service {
         btHelper = new BTHelper(this);
         btHelper.onCreate();
 
-        nsdHelper = new NSDHelper(this);
-        nsdHelper.initializeResolveListener();
-        nsdHelper.initializeDiscoveryListener();
-        nsdHelper.discoveryServices();
+        nsdHandler = new NSDHandler(this);
+        nsdHandler.initializeResolveListener();
+        nsdHandler.initializeDiscoveryListener();
+        nsdHandler.discoveryServices();
 
         HandlerThread thread = new HandlerThread("Service");
         thread.start();
@@ -115,7 +118,7 @@ public class BackendService extends Service {
         Log.i(TAG, "onDestroy");
         notificationHelper.onDestroy();
         btHelper.onDestroy();
-        nsdHelper.onDestroy();
+        nsdHandler.onDestroy();
     }
 
     private final IBinder binder = new BackendServiceBinder();
@@ -139,7 +142,6 @@ public class BackendService extends Service {
         }
     }
 
-
     public void setBackendServiceCallback(BackendServiceCallbackInterface backendServiceCallback) {
         mCallback = backendServiceCallback;
     }
@@ -151,7 +153,10 @@ public class BackendService extends Service {
     public static void startBackendService(Context context) {
         Intent intent = new Intent(context, BackendService.class);
         intent.putExtra("command", Command.CMD_START);
-        context.startForegroundService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            context.startForegroundService(intent);
+        else
+            context.startService(intent);
     }
 
     public static void bindBackendService(Context context, ServiceConnection connection) {
@@ -163,6 +168,25 @@ public class BackendService extends Service {
         CMD_NONE,   // 0:总感觉如果没有个0撑着会出问题
         CMD_START,
         CMD_DESTROY,
-        CMD_FINDDEVICE
+        CMD_CONNECT_DEVICE
+    }
+
+    // 暂时没有测试过，什么时候会解析失败
+    @Override
+    public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
+        Log.e(TAG, "Resolve failed: " + errorCode);
+    }
+
+    @Override
+    public void onServiceResolved(NsdServiceInfo serviceInfo) {
+        // 在这获取目标IP与端口
+        Log.e(TAG, "Resolve Succeeded. " + serviceInfo);
+
+        int port = serviceInfo.getPort();
+        InetAddress host = serviceInfo.getHost();
+    }
+
+    public void test(){
+        Log.i(TAG, "test");
     }
 }

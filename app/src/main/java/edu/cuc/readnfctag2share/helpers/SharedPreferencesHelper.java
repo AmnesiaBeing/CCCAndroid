@@ -18,5 +18,4 @@ public class SharedPreferencesHelper {
             sharedPreferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         }
     }
-
 }

@@ -2,13 +2,17 @@ package edu.cuc.readnfctag2share.ui;
 
 import android.Manifest;
 import android.content.Intent;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -20,7 +24,7 @@ import edu.cuc.readnfctag2share.packets.DeviceInfo;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class NewTAGActivity extends AppCompatActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks, BackendService.BackendServiceCallbackInterface, NFCHelper.NFCTagWriteListener {
+public class NewTAGActivity extends AppCompatActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks, BackendService.BackendServiceCallbackInterface, NFCHelper.NFCTagEventListener {
     private static String TAG = NewTAGActivity.class.getSimpleName();
     private NFCHelper nfcHelper;
     private static final int RC_CAMERA_PERM = 123;
@@ -56,8 +60,12 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onNewIntent(Intent intent) {
         Log.i(TAG, "onNewIntent");
+        if (intent != null) {
+            if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
+                nfcHelper.resolveNFCIntent(intent);
+            }
+        }
         super.onNewIntent(intent);
-        nfcHelper.resolveNFCIntent(intent);
     }
 
     @Override
@@ -78,6 +86,7 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_begin_add_tag:
+                findViewById(R.id.btn_begin_add_tag).setEnabled(false);
                 findViewById(R.id.v_step1).setVisibility(View.VISIBLE);
             case R.id.btn_begin_scan_QRCode:
                 startScanQRCodeActivityForResult();
@@ -99,11 +108,13 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
         Log.i(TAG, result);
         DeviceInfo deviceInfo = DeviceInfo.parseJSONStr(result);
         if (deviceInfo == null) {
-            Toast.makeText(this, R.string.err_QRCode, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.scan_QRCode_err, Toast.LENGTH_LONG).show();
         } else {
+            Toast.makeText(this, R.string.scan_QRCode_ok, Toast.LENGTH_LONG).show();
             findViewById(R.id.v_step2).setVisibility(View.VISIBLE);
+            ((TextView) findViewById(R.id.tv_scan_result)).setText(getString(R.string.dev_name) + deviceInfo.getDeviceName());
             Intent intent = new Intent();
-            intent.putExtra("command", BackendService.Command.CMD_FINDDEVICE);
+            intent.putExtra("command", BackendService.Command.CMD_CONNECT_DEVICE);
             intent.putExtra("extra", deviceInfo);
             // NFCHelper prepare write tag
         }
@@ -144,7 +155,12 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
-    public void onWriteCompleted() {
+    public void onNFCTagWriteCompleted() {
+        ((TextView) findViewById(R.id.tv_write_result)).setText(R.string.tag_write_ok);
+    }
 
+    @Override
+    public void onNFCTagWriteError(int strId) {
+        ((TextView) findViewById(R.id.tv_write_result)).setText(strId);
     }
 }

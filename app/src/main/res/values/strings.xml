@@ -22,5 +22,11 @@
     <string name="scanQRCode_tip_error">打开相机出错</string>
     <string name="finish_add_tag">写卡操作毕</string>
     <string name="preference_file_key">mySharedPreferences</string>
-    <string name="err_QRCode">二维码数据不正确</string>
+    <string name="scan_QRCode_err">二维码数据不正确，请重新扫描</string>
+    <string name="scan_QRCode_ok">二维码扫描成功，请进行下一步步骤</string>
+    <string name="dev_name">设备名称：</string>
+    <string name="tag_nosupport">不支持的卡类型</string>
+    <string name="tag_write_err">写卡错误</string>
+    <string name="tag_write_ok">写卡成功</string>
+    <string name="tag_unknown_device">未知设备信息</string>
 </resources>

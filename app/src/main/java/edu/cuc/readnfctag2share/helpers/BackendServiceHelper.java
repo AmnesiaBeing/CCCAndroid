@@ -51,4 +51,8 @@ public class BackendServiceHelper {
         intent.putExtra("command", BackendService.Command.CMD_DESTROY);
         mContext.startService(intent);
     }
+
+    public void test(){
+        mService.test();
+    }
 }

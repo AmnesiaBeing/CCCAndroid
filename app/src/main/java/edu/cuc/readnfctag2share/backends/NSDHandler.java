@@ -1,16 +1,20 @@
-package edu.cuc.readnfctag2share.helpers;
+package edu.cuc.readnfctag2share.backends;
 
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 
-import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
-public class NSDHelper {
+import edu.cuc.readnfctag2share.packets.DeviceInfo;
 
-    private final static String TAG = NSDHelper.class.getSimpleName();
+public class NSDHandler {
 
+    private final static String TAG = NSDHandler.class.getSimpleName();
+
+    // 如何获取手机名称or自行设置？
     private final static String MyServiceName = "AAA";
     private final static String SERVICE_TYPE = "_ccc._tcp.";
 
@@ -19,11 +23,14 @@ public class NSDHelper {
 
     private NsdManager nsdManager;
 
-    private NsdServiceInfo mService;
+    private List<NsdServiceInfo> services = new ArrayList<>();
 
     private Context mContext;
 
-    public NSDHelper(Context context) {
+    // 设想中，这是目标连接设备的信息
+    private DeviceInfo targetDevice;
+
+    public NSDHandler(Context context) {
         mContext = context;
         nsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
     }
@@ -48,7 +55,7 @@ public class NSDHelper {
                 } else if (service.getServiceName().equals(MyServiceName)) {
                     // 防止连接到自己同名字的替身
                     Log.d(TAG, "Same machine: " + MyServiceName);
-                } else  {
+                } else {
                     // 其余情况：类型相同，名字不同，那应该是
                     Log.d(TAG, "resolve:  " + service.getServiceName());
                     nsdManager.resolveService(service, resolveListener);
@@ -92,12 +99,10 @@ public class NSDHelper {
 
             @Override
             public void onServiceResolved(NsdServiceInfo serviceInfo) {
-                // 在这获取目标IP与端口
+                // 这里需要做验证么？
+                // 考虑到一个局域网内有多个mdns服务响应？
                 Log.e(TAG, "Resolve Succeeded. " + serviceInfo);
-
-                mService = serviceInfo;
-                int port = mService.getPort();
-                InetAddress host = mService.getHost();
+                services.add(serviceInfo);
             }
         };
     }
@@ -108,5 +113,9 @@ public class NSDHelper {
 
     public void onDestroy() {
         nsdManager.stopServiceDiscovery(discoveryListener);
+    }
+
+    public void setTargetDevice(DeviceInfo device) {
+        targetDevice = device;
     }
 }

@@ -37,6 +37,15 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     }
 
     @Override
+    public void onNewIntent(Intent intent) {
+        Log.i(TAG, "onNewIntent" + intent);
+        if (intent != null) {
+
+        }
+        super.onNewIntent(intent);
+    }
+
+    @Override
     protected void onStart() {
         Log.i(TAG, "onStart");
         super.onStart();
@@ -76,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         switch (item.getItemId()) {
             case R.id.app_bar_add:
                 startActivity(new Intent(this, NewTAGActivity.class));
+//                backendServiceHelper.test();
                 return true;
         }
         return super.onOptionsItemSelected(item);
