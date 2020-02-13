@@ -2,16 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="edu.cuc.readnfctag2share">
-    <!-- 近场通讯功能使用权限 -->
-    <uses-permission android:name="android.permission.NFC" /> <!-- 震动权限 -->
-    <uses-permission android:name="android.permission.VIBRATE" /> <!-- 读写存储设备权限 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 建立蓝牙连接和传输权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- 扫描蓝牙设备或修改蓝牙设置权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- Android 6.0及后续版本扫描蓝牙,需要定位权限(进入GPS设置,可以看到蓝牙定位) -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 创建前台服务需要的权限 -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 网络权限 -->
-    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.NFC" /> <!-- 近场通讯功能使用权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" /> <!-- 震动权限 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- 读写存储设备权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- 建立蓝牙连接和传输权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- 扫描蓝牙设备或修改蓝牙设置权限 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Android 6.0及后续版本扫描蓝牙,需要定位权限(进入GPS设置,可以看到蓝牙定位) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 创建前台服务需要的权限 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
@@ -24,13 +24,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ui.NDefTriggerActivity">
+        <activity
+            android:name=".ui.NDefTriggerActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/half_transparent_activity_theme">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="vnd.android.nfc"
+                <data
                     android:host="ext"
-                    android:pathPrefix="/ccc.local:test"/>
+                    android:pathPrefix="/ccc.local:test"
+                    android:scheme="vnd.android.nfc" />
             </intent-filter>
         </activity>
         <activity

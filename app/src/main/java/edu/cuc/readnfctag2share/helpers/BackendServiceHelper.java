@@ -12,7 +12,7 @@ public class BackendServiceHelper {
     private static final String TAG = BackendServiceHelper.class.getSimpleName();
 
     private final Context mContext;
-    private BackendService mService;
+    public BackendService mService;
     private boolean mBound = false;
 
     public BackendServiceHelper(Context context) {

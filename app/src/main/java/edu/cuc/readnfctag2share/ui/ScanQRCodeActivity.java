@@ -1,6 +1,7 @@
 package edu.cuc.readnfctag2share.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -49,8 +50,13 @@ public class ScanQRCodeActivity extends AppCompatActivity implements QRCodeView.
 
     private void vibrate() {
         Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        if (vibrator != null)
-            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
+        if (vibrator != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
+            else {
+                // TODO:
+            }
+        }
     }
 
     @Override

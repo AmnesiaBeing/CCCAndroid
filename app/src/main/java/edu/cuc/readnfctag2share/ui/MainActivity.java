@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
@@ -19,21 +21,27 @@ import java.util.Map;
 
 import edu.cuc.readnfctag2share.R;
 import edu.cuc.readnfctag2share.backends.BackendService;
+import edu.cuc.readnfctag2share.backends.RPCHandler;
 import edu.cuc.readnfctag2share.helpers.BackendServiceHelper;
 import edu.cuc.readnfctag2share.helpers.SharedPreferencesHelper;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 
 
-public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener, CheckBox.OnCheckedChangeListener, BackendService.BackendServiceCallbackInterface {
+public class MainActivity extends AppCompatActivity implements Button.OnClickListener, RadioGroup.OnCheckedChangeListener, CheckBox.OnCheckedChangeListener, BackendService.BackendServiceCallbackInterface {
 
     private static String TAG = MainActivity.class.getSimpleName();
 
     private BackendServiceHelper backendServiceHelper;
+    private ManagedChannel channel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initView();
         backendServiceHelper = new BackendServiceHelper(this);
+
+        channel = ManagedChannelBuilder.forAddress("192.168.1.4", 50051).usePlaintext().build();
     }
 
     @Override
@@ -113,12 +121,15 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     private void initView() {
         setContentView(R.layout.activity_main);
+
         CheckBox cbSendClipboard = findViewById(R.id.cb_send_clipboard);
         cbSendClipboard.setOnCheckedChangeListener(this);
         cbSendClipboard.setChecked(SharedPreferencesHelper.getApplicationSharedPreferences().getBoolean("SendClipboard", true));
         CheckBox cbRecvClipboard = findViewById(R.id.cb_recv_clipboard);
         cbRecvClipboard.setOnCheckedChangeListener(this);
         cbRecvClipboard.setChecked(SharedPreferencesHelper.getApplicationSharedPreferences().getBoolean("RecvClipboard", true));
+        findViewById(R.id.btn_share_clipboard).setOnClickListener(this);
+
         RadioGroup rgTransMethod = findViewById(R.id.rg_trans_method);
         rgTransMethod.setOnCheckedChangeListener(this);
         // 好长
@@ -158,4 +169,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         return map[value];
     }
 
+    @Override
+    public void onClick(View v) {
+        new RPCHandler.GrpcTask(new RPCHandler.ShareClipBoardRunnable(), channel, backendServiceHelper.mService).execute();
+    }
 }

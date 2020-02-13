@@ -12,6 +12,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         SharedPreferencesHelper.initInstant(this);
-        BackendService.startBackendService(this);
+//        BackendService.startBackendService(this);
     }
 }

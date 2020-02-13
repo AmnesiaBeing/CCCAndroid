@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "edu.cuc.readnfctag2share";
+option java_outer_classname = "CCCProto";
+option objc_class_prefix = "CCC";
+
+package ccc;
+
+service CCC {
+  // 测试专用
+  rpc SayHello(HelloRequest) returns (HelloReply) {}
+  // 交换剪贴板内容
+  rpc ShareClipBoard(Content) returns (Content) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest { string name = 1; }
+
+// The response message containing the greetings
+message HelloReply { string message = 1; }
+
+// 剪贴板的内容
+message Content { string content = 1; }

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 29
@@ -15,6 +16,27 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+protobuf {
+    protoc { artifact = 'com.google.protobuf:protoc:3.11.0' }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.26.0' // CURRENT_GRPC_VERSION
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { option 'lite' }
+            }
+            task.plugins {
+                grpc { // Options added to --grpc_out
+                    option 'lite'
+                }
+            }
         }
     }
 }
@@ -36,4 +58,10 @@ dependencies {
 
     // 简化申请权限代码？的模块
     implementation 'pub.devrel:easypermissions:3.0.0'
+
+    // gRPC，总得有个通信协议吧，Android developer guide推荐这个
+    implementation 'io.grpc:grpc-okhttp:1.26.0' // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-protobuf-lite:1.26.0' // CURRENT_GRPC_VERSION
+    implementation 'io.grpc:grpc-stub:1.26.0' // CURRENT_GRPC_VERSION
+    implementation 'javax.annotation:javax.annotation-api:1.2'
 }
