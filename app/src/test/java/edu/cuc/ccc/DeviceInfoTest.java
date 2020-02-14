@@ -1,11 +1,8 @@
-package edu.cuc.readnfctag2share;
-
-import android.content.Context;
+package edu.cuc.ccc;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import edu.cuc.readnfctag2share.packets.DeviceInfo;
+import edu.cuc.ccc.packets.DeviceInfo;
 
 public class DeviceInfoTest {
 

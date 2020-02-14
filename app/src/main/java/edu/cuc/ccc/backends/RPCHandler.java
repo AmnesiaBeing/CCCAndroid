@@ -1,4 +1,4 @@
-package edu.cuc.readnfctag2share.backends;
+package edu.cuc.ccc.backends;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -7,9 +7,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 
-import edu.cuc.readnfctag2share.CCCGrpc;
-import edu.cuc.readnfctag2share.Content;
-import edu.cuc.readnfctag2share.helpers.ClipboardHelper;
+import edu.cuc.ccc.CCCGrpc;
+import edu.cuc.ccc.Content;
 import io.grpc.ManagedChannel;
 
 public class RPCHandler {

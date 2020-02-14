@@ -1,11 +1,7 @@
-package edu.cuc.readnfctag2share.packets;
+package edu.cuc.ccc.packets;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.LinearLayout;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,11 +9,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 
 /*
     描述设备信息的包，以JSON格式传输。

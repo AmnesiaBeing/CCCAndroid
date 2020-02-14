@@ -1,11 +1,11 @@
-package edu.cuc.readnfctag2share.helpers;
+package edu.cuc.ccc;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import edu.cuc.readnfctag2share.R;
+import edu.cuc.ccc.R;
 
-public class SharedPreferencesHelper {
+public class MySharedPreferences {
 
     private static SharedPreferences sharedPreferences;
 

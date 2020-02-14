@@ -1,4 +1,4 @@
-package edu.cuc.readnfctag2share.helpers;
+package edu.cuc.ccc.helpers;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,8 +11,8 @@ import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
-import edu.cuc.readnfctag2share.R;
-import edu.cuc.readnfctag2share.ui.MainActivity;
+import edu.cuc.ccc.R;
+import edu.cuc.ccc.ui.MainActivity;
 
 public class NotificationHelper {
     private static final String TAG = NotificationHelper.class.getSimpleName();

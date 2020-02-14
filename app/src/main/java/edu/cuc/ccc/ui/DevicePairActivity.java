@@ -1,10 +1,13 @@
-package edu.cuc.readnfctag2share.ui;
+package edu.cuc.ccc.ui;
 
 import android.Manifest;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,20 +15,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
-import edu.cuc.readnfctag2share.R;
-import edu.cuc.readnfctag2share.backends.BackendService;
-import edu.cuc.readnfctag2share.helpers.BackendServiceHelper;
-import edu.cuc.readnfctag2share.helpers.NFCHelper;
-import edu.cuc.readnfctag2share.packets.DeviceInfo;
+import edu.cuc.ccc.R;
+import edu.cuc.ccc.helpers.BackendServiceHelper;
+import edu.cuc.ccc.helpers.NFCHelper;
+import edu.cuc.ccc.packets.DeviceInfo;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class NewTAGActivity extends AppCompatActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks, BackendService.BackendServiceCallbackInterface, NFCHelper.NFCTagEventListener {
-    private static String TAG = NewTAGActivity.class.getSimpleName();
+public class DevicePairActivity extends AppCompatActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks, NFCHelper.NFCTagEventListener {
+    private static String TAG = DevicePairActivity.class.getSimpleName();
     private NFCHelper nfcHelper;
     private static final int RC_CAMERA_PERM = 123;
 
@@ -35,9 +35,9 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_newtag);
-        findViewById(R.id.btn_begin_scan_QRCode).setOnClickListener(this);
-        findViewById(R.id.btn_begin_add_tag).setOnClickListener(this);
-        findViewById(R.id.btn_finish_add_tag).setOnClickListener(this);
+//        findViewById(R.id.btn_begin_scan_QRCode).setOnClickListener(this);
+//        findViewById(R.id.btn_begin_add_tag).setOnClickListener(this);
+        findViewById(R.id.btn_write_tag).setOnClickListener(this);
         backendServiceHelper = new BackendServiceHelper(this);
         nfcHelper = new NFCHelper(this);
         nfcHelper.setNFCTagWriteListener(this);
@@ -84,17 +84,34 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_begin_add_tag:
-                findViewById(R.id.btn_begin_add_tag).setEnabled(false);
-                findViewById(R.id.v_step1).setVisibility(View.VISIBLE);
-            case R.id.btn_begin_scan_QRCode:
+//        switch (v.getId()) {
+//            case R.id.btn_begin_add_tag:
+//                findViewById(R.id.btn_begin_add_tag).setEnabled(false);
+//                findViewById(R.id.v_step1).setVisibility(View.VISIBLE);
+//            case R.id.btn_begin_scan_QRCode:
+//                startScanQRCodeActivityForResult();
+//                break;
+//            case R.id.btn_write_tag:
+//                finish();
+//                break;
+//        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.camera, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.app_bar_add:
                 startScanQRCodeActivityForResult();
-                break;
-            case R.id.btn_finish_add_tag:
-                finish();
-                break;
+                return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     // 扫描后返回的结果给DeviceInfo解析一下
@@ -114,7 +131,7 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
             findViewById(R.id.v_step2).setVisibility(View.VISIBLE);
             ((TextView) findViewById(R.id.tv_scan_result)).setText(getString(R.string.dev_name) + deviceInfo.getDeviceName());
             Intent intent = new Intent();
-            intent.putExtra("command", BackendService.Command.CMD_CONNECT_DEVICE);
+//            intent.putExtra("command", BackendService.Command.CMD_CONNECT_DEVICE);
             intent.putExtra("extra", deviceInfo);
             // NFCHelper prepare write tag
         }
@@ -149,10 +166,10 @@ public class NewTAGActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
-    @Override
-    public void BackendServiceCallback() {
-
-    }
+//    @Override
+//    public void BackendServiceCallback() {
+//
+//    }
 
     @Override
     public void onNFCTagWriteCompleted() {

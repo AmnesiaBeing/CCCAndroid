@@ -1,4 +1,4 @@
-package edu.cuc.readnfctag2share.helpers;
+package edu.cuc.ccc.plugins.clipboardplugin;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;

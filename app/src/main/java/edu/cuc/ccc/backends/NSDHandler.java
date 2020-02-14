@@ -1,4 +1,4 @@
-package edu.cuc.readnfctag2share.backends;
+package edu.cuc.ccc.backends;
 
 import android.content.Context;
 import android.net.nsd.NsdManager;
@@ -8,7 +8,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cuc.readnfctag2share.packets.DeviceInfo;
+import edu.cuc.ccc.packets.DeviceInfo;
 
 public class NSDHandler {
 

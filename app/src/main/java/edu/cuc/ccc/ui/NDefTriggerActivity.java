@@ -1,13 +1,12 @@
-package edu.cuc.readnfctag2share.ui;
+package edu.cuc.ccc.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 
-import edu.cuc.readnfctag2share.R;
+import edu.cuc.ccc.R;
 
 public class NDefTriggerActivity extends AppCompatActivity {
 

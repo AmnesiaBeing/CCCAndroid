@@ -1,7 +1,6 @@
-package edu.cuc.readnfctag2share;
+package edu.cuc.ccc;
 
 import android.content.Context;
-import android.net.Uri;
 import android.nfc.NdefRecord;
 import android.util.Log;
 
@@ -13,8 +12,6 @@ import org.junit.runner.RunWith;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.SecretKey;
 
 import static org.junit.Assert.assertEquals;
 

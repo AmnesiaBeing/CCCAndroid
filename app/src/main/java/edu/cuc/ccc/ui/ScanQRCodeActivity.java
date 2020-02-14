@@ -1,4 +1,4 @@
-package edu.cuc.readnfctag2share.ui;
+package edu.cuc.ccc.ui;
 
 import android.content.Intent;
 import android.os.Build;
@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zbar.ZBarView;
-import edu.cuc.readnfctag2share.R;
+import edu.cuc.ccc.R;
 
 
 public class ScanQRCodeActivity extends AppCompatActivity implements QRCodeView.Delegate {

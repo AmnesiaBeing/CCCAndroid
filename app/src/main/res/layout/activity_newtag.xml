@@ -10,10 +10,74 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="@string/help_qrcode" />
+
+    <TextView
+        android:id="@+id/tv_scan_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/tip_add_tag" />
 
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/v_step0"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical">-->
+
+    <!--        <TextView-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:text="@string/step0" />-->
+
+    <!--        <Button-->
+    <!--            android:id="@+id/btn_begin_add_tag"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:drawableStart="@drawable/ic_check_black_24dp"-->
+    <!--            android:text="@string/imok" />-->
+    <!--    </LinearLayout>-->
+
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/v_step1"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical"-->
+    <!--        android:visibility="invisible">-->
+
+    <!--        <TextView-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:text="@string/step1" />-->
+
+    <!--        <Button-->
+    <!--            android:id="@+id/btn_begin_scan_QRCode"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:drawableStart="@drawable/ic_camera_alt_black_24dp"-->
+    <!--            android:text="@string/scanQRCode" />-->
+
+    <!--    </LinearLayout>-->
+
     <LinearLayout
-        android:id="@+id/v_step0"
+        android:id="@+id/v_step2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -21,68 +85,20 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/step0" />
+            android:text="@string/step2" />
 
         <Button
-            android:id="@+id/btn_begin_add_tag"
+            android:id="@+id/btn_write_tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:drawableStart="@drawable/ic_check_black_24dp"
-            android:text="@string/imok" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/v_step1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="invisible">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/step1" />
-
-        <Button
-            android:id="@+id/btn_begin_scan_QRCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:drawableStart="@drawable/ic_camera_alt_black_24dp"
-            android:text="@string/scanQRCode" />
-
-        <TextView
-            android:id="@+id/tv_scan_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/v_step2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="invisible">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/step2" />
+            android:text="@string/help_add_tag" />
 
         <TextView
             android:id="@+id/tv_write_result"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/btn_finish_add_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:drawableStart="@drawable/ic_check_black_24dp"
-            android:text="@string/finish_add_tag"
-            android:visibility="invisible" />
     </LinearLayout>
 
 </LinearLayout>

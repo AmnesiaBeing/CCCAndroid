@@ -5,7 +5,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
-        applicationId "edu.cuc.readnfctag2share"
+        applicationId "edu.cuc.ccc"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
@@ -64,4 +64,8 @@ dependencies {
     implementation 'io.grpc:grpc-protobuf-lite:1.26.0' // CURRENT_GRPC_VERSION
     implementation 'io.grpc:grpc-stub:1.26.0' // CURRENT_GRPC_VERSION
     implementation 'javax.annotation:javax.annotation-api:1.2'
+
+    // 学习kdeconnect，可加载的插件？
+    implementation 'org.atteo.classindex:classindex:3.6'
+    annotationProcessor 'org.atteo.classindex:classindex:3.6'
 }

@@ -1,6 +1,5 @@
-package edu.cuc.readnfctag2share.helpers;
+package edu.cuc.ccc.helpers;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;

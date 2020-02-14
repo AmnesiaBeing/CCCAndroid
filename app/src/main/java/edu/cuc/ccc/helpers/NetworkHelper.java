@@ -1,9 +1,7 @@
-package edu.cuc.readnfctag2share.helpers;
+package edu.cuc.ccc.helpers;
 
-import android.app.usage.NetworkStatsManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 

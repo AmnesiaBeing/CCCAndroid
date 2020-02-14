@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="edu.cuc.readnfctag2share">
+    package="edu.cuc.ccc">
 
     <uses-permission android:name="android.permission.NFC" /> <!-- 近场通讯功能使用权限 -->
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 震动权限 -->
@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
-        android:name=".MyApplication"
+        android:name="edu.cuc.ccc.MyApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -25,7 +25,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".ui.NDefTriggerActivity"
+            android:name="edu.cuc.ccc.ui.NDefTriggerActivity"
             android:launchMode="singleTop"
             android:theme="@style/half_transparent_activity_theme">
             <intent-filter>
@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.MainActivity"
+            android:name="edu.cuc.ccc.ui.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop">
             <intent-filter>
@@ -48,13 +48,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.NewTAGActivity"
+            android:name="edu.cuc.ccc.ui.DevicePairActivity"
             android:label="@string/title_add_tag_activity" />
         <activity
-            android:name=".ui.ScanQRCodeActivity"
+            android:name="edu.cuc.ccc.ui.ScanQRCodeActivity"
             android:label="@string/title_scan_QRCode_activity" />
 
-        <service android:name=".backends.BackendService" />
+        <service android:name="edu.cuc.ccc.backends.BackendService" />
     </application>
 
 </manifest>

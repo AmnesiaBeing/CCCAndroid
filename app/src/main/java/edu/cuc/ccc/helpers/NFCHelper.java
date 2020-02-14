@@ -1,10 +1,9 @@
-package edu.cuc.readnfctag2share.helpers;
+package edu.cuc.ccc.helpers;
 
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -12,14 +11,12 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
-import android.nfc.tech.NfcA;
-import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.IOException;
 
-import edu.cuc.readnfctag2share.R;
-import edu.cuc.readnfctag2share.packets.DeviceInfo;
+import edu.cuc.ccc.R;
+import edu.cuc.ccc.packets.DeviceInfo;
 
 public class NFCHelper {
     private static String TAG = NFCHelper.class.getSimpleName();
