@@ -33,7 +33,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data
                     android:host="ext"
-                    android:pathPrefix="/ccc.local:test"
+                    android:pathPrefix="/ccc.local:ccctag"
                     android:scheme="vnd.android.nfc" />
             </intent-filter>
         </activity>

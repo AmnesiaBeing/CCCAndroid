@@ -2,6 +2,7 @@ package edu.cuc.ccc.helpers;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.FormatException;
@@ -15,13 +16,14 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import edu.cuc.ccc.Device;
 import edu.cuc.ccc.R;
-import edu.cuc.ccc.packets.DeviceInfo;
+import edu.cuc.ccc.backends.BackendService;
 
 public class NFCHelper {
     private static String TAG = NFCHelper.class.getSimpleName();
 
-    private Activity mActivity;
+    private Context mContext;
 
     private NfcAdapter mAdapter;
     private PendingIntent mPendingIntent;
@@ -32,13 +34,14 @@ public class NFCHelper {
 
     private NFCTagEventListener mListener;
 
-    private DeviceInfo deviceInfo;
+    private Device targetDevice;
+//    private boolean enable = false;
 
-    public NFCHelper(Activity activity) {
-        this.mActivity = activity;
-        mAdapter = NfcAdapter.getDefaultAdapter(mActivity);
-        mPendingIntent = PendingIntent.getActivity(mActivity, 0,
-                new Intent(mActivity, mActivity.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+    public NFCHelper(Context context) {
+        this.mContext = context;
+        mAdapter = NfcAdapter.getDefaultAdapter(mContext);
+        mPendingIntent = PendingIntent.getActivity(mContext, 0,
+                new Intent(mContext, mContext.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         ndef.addCategory(Intent.CATEGORY_DEFAULT);
         mFilters = new IntentFilter[]{ndef};
@@ -46,25 +49,30 @@ public class NFCHelper {
     }
 
     public void setupForegroundDispatch() {
+//        if (!enable) return;
         if (mAdapter == null) return;
-        mAdapter.enableForegroundDispatch(mActivity, mPendingIntent, mFilters, mTechLists);
+        mAdapter.enableForegroundDispatch((Activity) mContext, mPendingIntent, mFilters, mTechLists);
         Log.i("Foreground dispatch", "setupForegroundDispatch");
     }
 
     public void undoForegroundDispatch() {
+//        if (!enable) return;
         if (mAdapter == null) return;
-        mAdapter.disableForegroundDispatch(mActivity);
+        mAdapter.disableForegroundDispatch((Activity) mContext);
         Log.i("Foreground dispatch", "undoForegroundDispatch");
     }
 
+    // 当intent为NFC_TAG_DISCOVERED才会进入这个函数
     public void resolveNFCIntent(Intent intent) {
         Log.i("Foreground dispatch", "Discovered tag with intent: " + intent);
-        // intent 为空不会进入这个函数
         mTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         // 有写入数据时才写入内容嘛
-        if (deviceInfo == null) {
-            mListener.onNFCTagWriteError(R.string.tag_unknown_device);
-        } else {
+        if (targetDevice == null) {
+//            mListener.onNFCTagWriteError(R.string.tag_unknown_device);
+            targetDevice = BackendService.getInstance().getDeviceManager().getPairedDevice();
+        }
+        if (targetDevice != null) {
+//            if (enable)
             writeTag();
         }
         // TODO:判断标签是否已经写过同类型的数据？
@@ -83,6 +91,10 @@ public class NFCHelper {
         mListener = listener;
     }
 
+//    public void refreshWriteContent() {
+//        targetDevice = BackendService.getInstance().getDeviceManager().getPairedDevice();
+//    }
+
     public interface NFCTagEventListener {
         void onNFCTagWriteCompleted();
 
@@ -96,9 +108,9 @@ public class NFCHelper {
         // NdefMessage msgs = new NdefMessage(new NdefRecord[]{NdefRecord.createUri("ccc://devname")});
         // NdefMessage msgs = new NdefMessage(new NdefRecord[]{NdefRecord.createExternal("ccc.local", "test", new byte[0])});
         return new NdefMessage(new NdefRecord[]{
-                NdefRecord.createExternal("ccc.local", "test", new byte[0]),
+                NdefRecord.createExternal("ccc.local", "ccctag", new byte[0]),
                 // TODO:sth about device
-                NdefRecord.createApplicationRecord(mActivity.getPackageName())});
+                NdefRecord.createApplicationRecord(mContext.getPackageName())});
     }
 
     private void writeTag() {
@@ -142,7 +154,11 @@ public class NFCHelper {
     }
 
     // 设置需要写入的设备信息
-    public void setWriteContent(DeviceInfo deviceInfo) {
-        this.deviceInfo = deviceInfo;
+    public void setWriteContent(Device device) {
+        this.targetDevice = device;
     }
+//
+//    public void setEnable(boolean en) {
+//        this.enable = en;
+//    }
 }

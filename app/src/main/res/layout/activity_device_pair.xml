@@ -5,7 +5,9 @@
     android:layout_height="match_parent"
     android:divider="@drawable/divider"
     android:orientation="vertical"
-    android:padding="15dp">
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp"
+    android:paddingBottom="15dp">
 
     <TextView
         android:layout_width="match_parent"
@@ -21,16 +23,26 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/tip_add_tag" />
+        android:text="@string/tip_select_device" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/srl_devices"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
+        <!--        <ScrollView-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            android:orientation="vertical">-->
+
         <ListView
+            android:id="@+id/lv_devices"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:divider="@drawable/divider"
+            android:orientation="vertical" />
+        <!--        </ScrollView>-->
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -76,29 +88,27 @@
 
     <!--    </LinearLayout>-->
 
-    <LinearLayout
-        android:id="@+id/v_step2"
+    <!--    <LinearLayout-->
+    <!--        android:id="@+id/v_step2"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical">-->
+
+    <TextView
+        android:id="@+id/tv_nfc_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:text="@string/step2" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/step2" />
+    <!--        <Button-->
+    <!--            android:id="@+id/btn_write_tag"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_gravity="center"-->
+    <!--            android:drawableStart="@drawable/ic_check_black_24dp"-->
+    <!--            android:enabled="false"-->
+    <!--            android:text="@string/help_add_tag" />-->
 
-        <Button
-            android:id="@+id/btn_write_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:drawableStart="@drawable/ic_check_black_24dp"
-            android:text="@string/help_add_tag" />
-
-        <TextView
-            android:id="@+id/tv_write_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+    <!--    </LinearLayout>-->
 
 </LinearLayout>

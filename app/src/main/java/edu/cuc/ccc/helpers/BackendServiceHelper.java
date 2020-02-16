@@ -48,7 +48,4 @@ public class BackendServiceHelper {
 //        mContext.startService(intent);
     }
 
-    public void test(){
-        mService.test();
-    }
 }

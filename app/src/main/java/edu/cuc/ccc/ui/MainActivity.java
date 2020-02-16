@@ -28,17 +28,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initView();
+        initViews();
         backendServiceHelper = new BackendServiceHelper(this);
-    }
-
-    @Override
-    public void onNewIntent(Intent intent) {
-        Log.i(TAG, "onNewIntent" + intent);
-        if (intent != null) {
-
-        }
-        super.onNewIntent(intent);
     }
 
     @Override
@@ -78,11 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.app_bar_add:
-                startActivity(new Intent(this, DevicePairActivity.class));
-//                backendServiceHelper.test();
-                return true;
+        if (item.getItemId() == R.id.app_bar_add) {
+            startActivity(new Intent(this, DevicePairActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -93,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 
-    private void initView() {
+    private void initViews() {
         setContentView(R.layout.activity_main);
 
         // 加载插件在主界面的选项界面

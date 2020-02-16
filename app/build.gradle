@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.protobuf'
+//apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "edu.cuc.ccc"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -20,26 +20,26 @@ android {
     }
 }
 
-protobuf {
-    protoc { artifact = 'com.google.protobuf:protoc:3.11.0' }
-    plugins {
-        grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.26.0' // CURRENT_GRPC_VERSION
-        }
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java { option 'lite' }
-            }
-            task.plugins {
-                grpc { // Options added to --grpc_out
-                    option 'lite'
-                }
-            }
-        }
-    }
-}
+//protobuf {
+//    protoc { artifact = 'com.google.protobuf:protoc:3.11.0' }
+//    plugins {
+//        grpc {
+//            artifact = 'io.grpc:protoc-gen-grpc-java:1.26.0' // CURRENT_GRPC_VERSION
+//        }
+//    }
+//    generateProtoTasks {
+//        all().each { task ->
+//            task.builtins {
+//                java { option 'lite' }
+//            }
+//            task.plugins {
+//                grpc { // Options added to --grpc_out
+//                    option 'lite'
+//                }
+//            }
+//        }
+//    }
+//}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -60,10 +60,12 @@ dependencies {
     implementation 'pub.devrel:easypermissions:3.0.0'
 
     // gRPC，总得有个通信协议吧，Android developer guide推荐这个
-    implementation 'io.grpc:grpc-okhttp:1.26.0' // CURRENT_GRPC_VERSION
-    implementation 'io.grpc:grpc-protobuf-lite:1.26.0' // CURRENT_GRPC_VERSION
-    implementation 'io.grpc:grpc-stub:1.26.0' // CURRENT_GRPC_VERSION
-    implementation 'javax.annotation:javax.annotation-api:1.2'
+//    implementation 'io.grpc:grpc-okhttp:1.26.0' // CURRENT_GRPC_VERSION
+//    implementation 'io.grpc:grpc-protobuf-lite:1.26.0' // CURRENT_GRPC_VERSION
+//    implementation 'io.grpc:grpc-stub:1.26.0' // CURRENT_GRPC_VERSION
+//    implementation 'javax.annotation:javax.annotation-api:1.2'
+
+    implementation("com.squareup.okhttp3:okhttp:4.3.1")
 
     // 学习kdeconnect，可加载的插件？
     implementation 'org.atteo.classindex:classindex:3.6'

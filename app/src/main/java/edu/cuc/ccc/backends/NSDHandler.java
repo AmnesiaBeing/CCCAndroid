@@ -8,8 +8,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cuc.ccc.packets.DeviceInfo;
+import edu.cuc.ccc.Device;
 
+// 负责管理网络发现的的类
 public class NSDHandler {
 
     private final static String TAG = NSDHandler.class.getSimpleName();
@@ -23,19 +24,24 @@ public class NSDHandler {
 
     private NsdManager nsdManager;
 
-    private List<NsdServiceInfo> services = new ArrayList<>();
-
     private Context mContext;
-
-    // 设想中，这是目标连接设备的信息
-    private DeviceInfo targetDevice;
 
     public NSDHandler(Context context) {
         mContext = context;
         nsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
     }
 
-    public void initializeDiscoveryListener() {
+    public void onCreate() {
+        initializeDiscoveryListener();
+        initializeResolveListener();
+        discoveryServices();
+    }
+
+    public void onDestroy() {
+        stopDiscoveryServices();
+    }
+
+    private void initializeDiscoveryListener() {
         // Instantiate a new DiscoveryListener
         discoveryListener = new NsdManager.DiscoveryListener() {
 
@@ -88,7 +94,7 @@ public class NSDHandler {
         };
     }
 
-    public void initializeResolveListener() {
+    private void initializeResolveListener() {
         resolveListener = new NsdManager.ResolveListener() {
 
             @Override
@@ -98,24 +104,30 @@ public class NSDHandler {
             }
 
             @Override
-            public void onServiceResolved(NsdServiceInfo serviceInfo) {
+            public void onServiceResolved(final NsdServiceInfo serviceInfo) {
                 // 这里需要做验证么？
                 // 考虑到一个局域网内有多个mdns服务响应？
                 Log.e(TAG, "Resolve Succeeded. " + serviceInfo);
-                services.add(serviceInfo);
+                Device device = new Device();
+                device.setDeviceName(serviceInfo.getServiceName());
+                device.setDeviceIPAddress(new ArrayList<Device.IPAddr>() {
+                    {
+                        add(new Device.IPAddr(serviceInfo.getHost(), serviceInfo.getPort()));
+                    }
+                });
+                byte[] rawDT = serviceInfo.getAttributes().get("DT");
+                device.setDeviceType((rawDT != null) ? Device.DeviceType.valueOf(new String(rawDT)) : Device.DeviceType.Unknown);
+                BackendService.getInstance().getDeviceManager().putNewFoundDevice(device);
             }
         };
     }
 
-    public void discoveryServices() {
+    private void discoveryServices() {
         nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
     }
 
-    public void onDestroy() {
+    private void stopDiscoveryServices() {
         nsdManager.stopServiceDiscovery(discoveryListener);
     }
 
-    public void setTargetDevice(DeviceInfo device) {
-        targetDevice = device;
-    }
 }

@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import edu.cuc.ccc.helpers.BTHelper;
 import edu.cuc.ccc.helpers.NetworkHelper;
 import edu.cuc.ccc.helpers.NotificationHelper;
+import edu.cuc.ccc.plugins.clipboardplugin.ClipboardHelper;
 
 // 后（前）台服务，感觉这个数据不好走啊，流程贼复杂
 // Activity-->onCreate||onStart-->Helper-->bind||setCallback
@@ -48,7 +49,8 @@ public class BackendService extends Service implements NsdManager.ResolveListene
     private NSDHandler nsdHandler;
     private NetworkHelper networkHelper;
 
-    //    private ManagedChannel channel;
+    private DeviceManager deviceManager;
+    private RPCHandler rpcHandler;
 
     // 负责控制流程的handler，负责达成连接关系，不负责数据传输
     private final class ServiceHandler extends Handler {
@@ -58,26 +60,29 @@ public class BackendService extends Service implements NsdManager.ResolveListene
 
         @Override
         public void handleMessage(Message msg) {
-            Command cmd = Command.values()[msg.arg1];
-            Log.i(TAG, "handleMessage: " + cmd.name());
-            switch (cmd) {
+//            Command cmd = Command.values()[msg.arg1];
+//            Log.i(TAG, "handleMessage: " + cmd.name());
+
+            Log.i(TAG, "handleMessage: " + ClipboardHelper.getClipboardContent(BackendService.this));
+
+//            switch (cmd) {
 //                case CMD_NONE:
 //                    break;
 //                case CMD_DESTROY:
 //                    break;
 //                case CMD_START:
 //                    // 读取上一次使用的设备Info，设置为目标连接设备
-//                    DeviceInfo lastDevice = DeviceInfo.parseJSONStr(MySharedPreferences.getApplicationSharedPreferences().getString("LastDevice", null));
+//                    Device lastDevice = Device.parseJSONStr(MySharedPreferences.getApplicationSharedPreferences().getString("LastDevice", null));
 //                    nsdHandler.setTargetDevice(lastDevice);
 //                    break;
 //                case CMD_CONNECT_DEVICE:
 //                    // 尝试连接设备，设备的MAC地址存放在msg的obj中，类型为DeviceInfo
-//                    DeviceInfo device = (DeviceInfo) msg.obj;
+//                    Device device = (Device) msg.obj;
 //                    if (device == null) return;
 //                    // TODO:根据连接优先级重新调整结构体中，mac顺序
 //                    nsdHandler.setTargetDevice(device);
 //                    break;
-            }
+//            }
 //            if (mCallback != null) {
 //                mCallback.BackendServiceCallback();
 //            }
@@ -87,14 +92,14 @@ public class BackendService extends Service implements NsdManager.ResolveListene
     // startService(intent)-->here-->handleMessage
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) return START_STICKY;
+//        if (intent == null) return START_STICKY;
 //        Command cmd = (Command) intent.getSerializableExtra("command");
 //        if (cmd == null) cmd = Command.CMD_NONE;
 //        Log.i(TAG, "onStartCommand: " + cmd.name());
-        Message msg = new Message();
+//        Message msg = new Message();
 //        msg.arg1 = cmd.ordinal();
-        msg.obj = intent.getSerializableExtra("extra");
-        serviceHandler.sendMessage(msg);
+//        msg.obj = intent.getSerializableExtra("extra");
+//        serviceHandler.sendMessage(msg);
         return START_STICKY;
     }
 
@@ -104,6 +109,8 @@ public class BackendService extends Service implements NsdManager.ResolveListene
 
         BackendService.instance = this;
 
+        deviceManager = new DeviceManager();
+
         notificationHelper = new NotificationHelper(this);
         notificationHelper.onCreate();
 
@@ -111,16 +118,15 @@ public class BackendService extends Service implements NsdManager.ResolveListene
         btHelper.onCreate();
 
         nsdHandler = new NSDHandler(this);
-        nsdHandler.initializeResolveListener();
-        nsdHandler.initializeDiscoveryListener();
-        nsdHandler.discoveryServices();
+        nsdHandler.onCreate();
 
         HandlerThread thread = new HandlerThread("Service");
         thread.start();
         serviceLooper = thread.getLooper();
         serviceHandler = new ServiceHandler(serviceLooper);
-//
-//        channel = ManagedChannelBuilder.forAddress("192.168.1.4", 50051).usePlaintext().build();
+
+        rpcHandler = new RPCHandler();
+        rpcHandler.onCreate();
     }
 
     @Override
@@ -175,12 +181,12 @@ public class BackendService extends Service implements NsdManager.ResolveListene
 //        context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
 //    }
 
-    public enum Command {
+//    public enum Command {
 //        CMD_NONE,   // 0:总感觉如果没有个0撑着会出问题
 //        CMD_START,
 //        CMD_DESTROY,
 //        CMD_CONNECT_DEVICE
-    }
+//    }
 
     // 暂时没有测试过，什么时候会解析失败
     @Override
@@ -197,9 +203,15 @@ public class BackendService extends Service implements NsdManager.ResolveListene
         InetAddress host = serviceInfo.getHost();
     }
 
-    public void test() {
-        Log.i(TAG, "test");
+    public NSDHandler getNsdHandler() {
+        return nsdHandler;
     }
 
+    public DeviceManager getDeviceManager() {
+        return deviceManager;
+    }
 
+    public RPCHandler getRpcHandler() {
+        return rpcHandler;
+    }
 }
