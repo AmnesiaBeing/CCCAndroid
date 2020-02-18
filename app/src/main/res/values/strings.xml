@@ -34,4 +34,6 @@
     <string name="tip_nfc_nosupport">该手机不支持NFC功能。</string>
     <string name="tip_nfc_disable">NFC功能未开启。</string>
     <string name="tip_nfc_prepared">请将手机靠近NFC标签</string>
+    <string name="tip_paired_device">当前已配对设备：</string>
+
 </resources>

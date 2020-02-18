@@ -3,7 +3,7 @@ package edu.cuc.ccc;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import edu.cuc.ccc.R;
+import static edu.cuc.ccc.MyApplication.appContext;
 
 public class MySharedPreferences {
 
@@ -13,9 +13,12 @@ public class MySharedPreferences {
         return sharedPreferences;
     }
 
-    public static void initInstant(Context context) {
-        if (sharedPreferences == null) {
-            sharedPreferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        }
+    public static SharedPreferences getSharedPreferences(String name) {
+        return appContext.getSharedPreferences(name, Context.MODE_PRIVATE);
+    }
+
+    static void initInstant(Context context) {
+        appContext = context;
+        sharedPreferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
     }
 }

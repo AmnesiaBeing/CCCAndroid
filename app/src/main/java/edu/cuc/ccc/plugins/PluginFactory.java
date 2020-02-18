@@ -1,6 +1,7 @@
 package edu.cuc.ccc.plugins;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.atteo.classindex.ClassIndex;
 import org.atteo.classindex.IndexAnnotated;
@@ -12,6 +13,8 @@ import edu.cuc.ccc.MySharedPreferences;
 import edu.cuc.ccc.backends.BackendService;
 
 public class PluginFactory {
+
+    private static final String TAG = PluginFactory.class.getSimpleName();
 
     // 所有可加载的插件都会自动地放到这个接口里
     @IndexAnnotated
@@ -36,11 +39,16 @@ public class PluginFactory {
                 e.printStackTrace();
                 continue;
             }
-            plugin.setContext(context);
-            plugin.setSharedPreferences(MySharedPreferences.getApplicationSharedPreferences());
-            plugin.setBackendService(BackendService.getInstance());
             pluginInfo.put(plugin.getPluginName(), plugin);
         }
     }
 
+    // 执行插件
+    public static void doPluginProcess(String pluginName, PluginBase.PluginProcessCallback callback) {
+        PluginBase plugin = pluginInfo.get(pluginName);
+        if (plugin != null) {
+            Log.e(TAG, "doPluginProcess: " + pluginName);
+            plugin.process(callback);
+        }
+    }
 }

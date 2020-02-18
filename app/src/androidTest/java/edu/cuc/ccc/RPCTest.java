@@ -1,7 +1,6 @@
 package edu.cuc.ccc;
 
 import android.content.Context;
-import android.nfc.NdefRecord;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -11,13 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import edu.cuc.ccc.backends.BackendService;
 import edu.cuc.ccc.backends.RPCHandler;
-import edu.cuc.ccc.plugins.PluginFactory;
 
 @RunWith(AndroidJUnit4.class)
 public class RPCTest {
@@ -30,8 +26,8 @@ public class RPCTest {
 
         Device targetDevice = new Device();
         try {
-            targetDevice.setDeviceIPAddress(new ArrayList<Device.IPAddr>() {{
-                add(new Device.IPAddr(InetAddress.getByName("192.168.1.4"), 8888));
+            targetDevice.setDeviceIPAddress(new ArrayList<Device.IPPortAddr>() {{
+                add(new Device.IPPortAddr(InetAddress.getByName("192.168.1.4"), 8888));
             }});
         } catch (Exception e) {
             e.printStackTrace();

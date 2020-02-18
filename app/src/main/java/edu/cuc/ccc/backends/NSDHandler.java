@@ -5,13 +5,11 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.cuc.ccc.Device;
+import edu.cuc.ccc.DeviceUtil;
 
 // 负责管理网络发现的的类
-public class NSDHandler {
+class NSDHandler {
 
     private final static String TAG = NSDHandler.class.getSimpleName();
 
@@ -24,20 +22,17 @@ public class NSDHandler {
 
     private NsdManager nsdManager;
 
-    private Context mContext;
-
-    public NSDHandler(Context context) {
-        mContext = context;
-        nsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
+    NSDHandler(Context context) {
+        nsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
     }
 
-    public void onCreate() {
+    void onCreate() {
         initializeDiscoveryListener();
         initializeResolveListener();
         discoveryServices();
     }
 
-    public void onDestroy() {
+    void onDestroy() {
         stopDiscoveryServices();
     }
 
@@ -110,14 +105,15 @@ public class NSDHandler {
                 Log.e(TAG, "Resolve Succeeded. " + serviceInfo);
                 Device device = new Device();
                 device.setDeviceName(serviceInfo.getServiceName());
-                device.setDeviceIPAddress(new ArrayList<Device.IPAddr>() {
-                    {
-                        add(new Device.IPAddr(serviceInfo.getHost(), serviceInfo.getPort()));
-                    }
-                });
+                device.addDeviceIPPortAddress(
+                        new DeviceUtil.IPPortAddr(serviceInfo.getHost(), serviceInfo.getPort())
+                );
                 byte[] rawDT = serviceInfo.getAttributes().get("DT");
-                device.setDeviceType((rawDT != null) ? Device.DeviceType.valueOf(new String(rawDT)) : Device.DeviceType.Unknown);
-                BackendService.getInstance().getDeviceManager().putNewFoundDevice(device);
+                device.setDeviceType((rawDT != null) ?
+                        DeviceUtil.DeviceType.valueOf(new String(rawDT)) : DeviceUtil.DeviceType.Unknown);
+                BackendService.getInstance().
+                        getDeviceManager().
+                        putNewFoundDevice(device);
             }
         };
     }

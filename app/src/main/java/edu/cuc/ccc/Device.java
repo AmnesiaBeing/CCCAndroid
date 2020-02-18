@@ -1,13 +1,13 @@
 package edu.cuc.ccc;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
+
+import edu.cuc.ccc.DeviceUtil.DeviceStatus;
+import edu.cuc.ccc.DeviceUtil.DeviceType;
+import edu.cuc.ccc.DeviceUtil.IPPortAddr;
 
 /*
     描述设备信息的包，以JSON格式传输。
@@ -15,26 +15,54 @@ import java.util.List;
 public class Device {
     private final static String TAG = Device.class.getSimpleName();
 
-    private final static int ProtocolVersion = 1;
+    public Device() {
+    }
+
+    public Device(String uuid, String name, DeviceType type, String cert, String pubKey, String priKey) {
+        this.mUUID = uuid;
+        this.mDeviceName = name;
+        this.mDeviceType = type;
+        this.mCertificate = cert;
+        this.mPublicKey = pubKey;
+        this.mPrivateKey = priKey;
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    @NotNull
+    @Override
+    public String toString() {
+        return DeviceUtil.toJSONStr(this);
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    // 20200218，又加了一堆内容，算是版本2吧
+    private final static int ProtocolVersion = 2;
 
     // 协议版本号
     private int mProtocolVersion = ProtocolVersion;
     // 设备名称
     private String mDeviceName;
+    // 设备ID
+    private String mUUID;
     // 设备类型
-    private DeviceType mDeviceType = DeviceType.Unknown;
+    private DeviceUtil.DeviceType mDeviceType = DeviceUtil.DeviceType.Unknown;
+    // 通过网络发现得到的IP地址与端口号
+    private List<IPPortAddr> ipPortAddrs = new ArrayList<>();
+    // TODO:通过二维码添加得到的物理信息
     //
-//    private List<MACAddr> macAddrs;
-    private List<IPAddr> ipAddrs;
-    // 设备支持的功能（暂不实现）
-//    private List<String> mSupportFeatures;
-    private boolean isPaired = false;
+    // 设备支持的插件
+    private List<String> mSupportFeatures = new ArrayList<>();
+    // 设备配对状态
+    private DeviceStatus mStatus = DeviceStatus.Unknown;
+    // 设备证书
+    private String mCertificate;
+    // 设备密钥（私钥只有自己知道）
+    private String mPublicKey;
+    private String mPrivateKey;
 
-    private String pairCode;
-
-    public Device() {
-
-    }
+    //----------------------------------------------------------------------------------------------
 
     public int getProtocolVersion() {
         return mProtocolVersion;
@@ -44,25 +72,13 @@ public class Device {
         this.mProtocolVersion = mProtocolVersion;
     }
 
-    public List<IPAddr> getDeviceIPAddress() {
-        return ipAddrs;
+    public List<IPPortAddr> getDeviceIPPortAddress() {
+        return ipPortAddrs;
     }
 
-    public IPAddr getDeviceCurrentIPAddress() {
-        return ipAddrs.get(0);
+    public void addDeviceIPPortAddress(IPPortAddr addr) {
+        ipPortAddrs.add(addr);
     }
-
-    public void setDeviceIPAddress(List<IPAddr> addrs) {
-        ipAddrs = addrs;
-    }
-
-//    public List<MACAddr> getDeviceMACAddress() {
-//        return macAddrs;
-//    }
-
-//    public void setDeviceMACAddress(List<MACAddr> mMACAddress) {
-//        this.macAddrs = mMACAddress;
-//    }
 
     public String getDeviceName() {
         return mDeviceName;
@@ -81,150 +97,73 @@ public class Device {
         this.mDeviceType = deviceType;
     }
 
-//    public List<String> getSupportFeatures() {
-//        return mSupportFeatures;
-//    }
-//
-//    public void setSupportFeatures(List<String> mSupportFeatures) {
-//        this.mSupportFeatures = mSupportFeatures;
-//    }
-
-    // 转换成json数据
-    public static String toJSONStr(Device device) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("Ver", device.getProtocolVersion());
-            jsonObject.put("DevType", device.getDeviceType());
-            jsonObject.put("DevName", device.getDeviceName());
-            JSONArray jsonArray = new JSONArray();
-            for (final IPAddr i : device.getDeviceIPAddress()) {
-                jsonArray.put(new JSONObject() {{
-                    put("addr", i.addr);
-                    put("port", i.port);
-                }});
-            }
-            jsonObject.put("DevIPAddr", jsonArray);
-//            for (final MACAddr i : device.getDeviceMACAddress()) {
-//                jsonArray.put(new JSONObject() {{
-//                    put("type", i.type.name());
-//                    put("addr", i.addr);
-//                }});
-//            }
-//            jsonObject.put("DevMACAddr", jsonArray);
-//        JSONArray jsonArray = new JSONArray();
-//        for (String i : device.getSupportFeatures()) {
-//            jsonArray.put(i);
-//        }
-//        jsonObject.put("DevFeatures", jsonArray);
-        } catch (Exception e) {
-            return "";
-        }
-        return jsonObject.toString();
-    }
-
-    @NotNull
-    @Override
-    public String toString() {
-        return toJSONStr(this);
-    }
-
-    // 解析传入的json数据，如解析不成功返回null
-    public static Device parseJSONStr(final String json) {
-        try {
-            JSONObject jsonObject = new JSONObject(json);
-            int ver = jsonObject.getInt("Ver");
-            DeviceType devType;
-            try {
-                devType = DeviceType.valueOf(jsonObject.getString("DevType"));
-            } catch (IllegalArgumentException e) {
-                devType = DeviceType.Unknown;
-            }
-            String devName = jsonObject.getString("DevName");
-//            List<MACAddr> addrs = new ArrayList<MACAddr>();
-//            final JSONArray jsonArray = (JSONArray) jsonObject.get("DevMACAddr");
-//            for (int i = 0; i < jsonArray.length(); i++) {
-//                MACAddr macAddr = new MACAddr();
-//                macAddr.type = MACAddrType.valueOf(jsonArray.getJSONObject(i).getString("type"));
-//                macAddr.addr = jsonArray.getJSONObject(i).getString("addr");
-//
-//                addrs.add(macAddr);
-//            }
-//        List<String> features = new ArrayList<String>();
-//        JSONArray jsonArray = (JSONArray) jsonObject.get("DevFeatures");
-//        for (int i = 0; i < jsonArray.length(); i++) {
-//            features.add(jsonArray.getJSONObject(i).getString(""));
-//        }
-            String pairCode = jsonObject.getString("PairCode");
-            // 简单判断数据可靠性，有问题返回null
-            if (ver != ProtocolVersion) throw new JSONException("版本号不匹配。");
-            Device device = new Device();
-            device.setProtocolVersion(ver);
-            device.setDeviceType(devType);
-            device.setDeviceName(devName);
-            device.setPairCode(pairCode);
-//            device.setDeviceMACAddress(addrs);
-            return device;
-        } catch (Exception e) {
-//            e.printStackTrace();
-            return null;
-        }
-    }
-
     public boolean isPaired() {
-        return isPaired;
+        return this.mStatus == DeviceStatus.Paired;
     }
 
-    public void setPaired(boolean paired) {
-        isPaired = paired;
+    public boolean isParing() {
+        return this.mStatus == DeviceStatus.Pairing;
     }
 
-    public String getPairCode() {
-        return pairCode;
-    }
-
-    public void setPairCode(String pairCode) {
-        this.pairCode = pairCode;
-    }
-
-//    public enum MACAddrType {
-//        // 无知者无畏
-//        Unknown,
-//        LAN,
-//        WLAN,
-//        BT,
-//        // 低功耗蓝牙设备带宽太小，就暂时不考虑了
-////        BLE
+//    public boolean isRecorded() {
+//        return ((this.mStatus == DeviceStatus.Recorded_Discovered) ||
+//                (this.mStatus == DeviceStatus.Recorded_but_not_Discovered) ||
+//                (this.mStatus == DeviceStatus.Pairing) ||
+//                (this.mStatus == DeviceStatus.Paired));
+//    }
+//
+//    public boolean isDiscovered() {
+//        return ((this.mStatus == DeviceStatus.Recorded_Discovered) ||
+//                (this.mStatus == DeviceStatus.Discovered_but_not_Recorded) ||
+//                (this.mStatus == DeviceStatus.Pairing) ||
+//                (this.mStatus == DeviceStatus.Paired));
 //    }
 
-//    public static class MACAddr implements Serializable {
-//        MACAddrType type;
-//        String addr;
-//    }
-
-    public static class IPAddr implements Serializable {
-        public InetAddress addr;
-        public int port;
-
-        public IPAddr(InetAddress addr, int port) {
-            this.addr = addr;
-            this.port = port;
-        }
+    public String getDeviceUUID() {
+        return mUUID;
     }
 
-    public enum DeviceType {
-        Unknown,
-        PC,
-        Phone;
+    public String getCertificate() {
+        return mCertificate;
+    }
 
-        public int getDrawableId() {
-            switch (this) {
-                case PC:
-                    return R.drawable.ic_computer_black_24dp;
-                case Phone:
-                    return R.drawable.ic_smartphone_black_24dp;
-                default:
-                    return R.drawable.ic_help_black_24dp;
-            }
-        }
+    public void setCertificate(String certificate) {
+        this.mCertificate = certificate;
+    }
+
+    public String getPublicKey() {
+        return mPublicKey;
+    }
+
+    public void setPublicKey(String key) {
+        this.mPublicKey = key;
+    }
+
+    public String getPrivateKey() {
+        return mPrivateKey;
+    }
+
+    public void setPrivateKey(String key) {
+        this.mPrivateKey = key;
+    }
+
+    public List<String> getSupportFeatures() {
+        return mSupportFeatures;
+    }
+
+    public void addSupportFeatures(String supportFeatures) {
+        this.mSupportFeatures.add(supportFeatures);
+    }
+
+    public DeviceStatus getStatus() {
+        return mStatus;
+    }
+
+    public void setStatus(DeviceStatus status) {
+        this.mStatus = status;
+    }
+
+    public void setUUID(String UUID) {
+        this.mUUID = UUID;
     }
 }

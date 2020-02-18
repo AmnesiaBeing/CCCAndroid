@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.Map;
 
 import edu.cuc.ccc.R;
-import edu.cuc.ccc.helpers.BackendServiceHelper;
 import edu.cuc.ccc.plugins.PluginBase;
 import edu.cuc.ccc.plugins.PluginFactory;
 
@@ -22,43 +21,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static String TAG = MainActivity.class.getSimpleName();
 
-    private BackendServiceHelper backendServiceHelper;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initViews();
-        backendServiceHelper = new BackendServiceHelper(this);
     }
-
-    @Override
-    protected void onStart() {
-        Log.i(TAG, "onStart");
-        super.onStart();
-        backendServiceHelper.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        Log.i(TAG, "onStop");
-        backendServiceHelper.onStop();
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.i(TAG, "onDestroy");
-        if (isFinishing()) {
-            backendServiceHelper.onDestroy();
-        }
-        super.onDestroy();
-    }
-
-//    @Override
-//    public void BackendServiceCallback() {
-//        Log.i(TAG, "BackendServiceCallback");
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,12 +42,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-//    @Override
-//    public void onCheckedChanged(RadioGroup group, int checkedId) {
-//        MySharedPreferences.getApplicationSharedPreferences().edit().putInt("TransMethod", TransMethodID2Index(checkedId)).apply();
-//    }
-
-
     private void initViews() {
         setContentView(R.layout.activity_main);
 
@@ -93,15 +54,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+//    @Override
+//    public void onCheckedChanged(RadioGroup group, int checkedId) {
+//        MySharedPreferences.getApplicationSharedPreferences().edit().putInt("TransMethod", TransMethodID2Index(checkedId)).apply();
+//    }
+
 
 //        RadioGroup rgTransMethod = findViewById(R.id.rg_trans_method);
 //        rgTransMethod.setOnCheckedChangeListener(this);
-        // 好长
+    // 好长
 //        ((RadioButton) findViewById(
 //                TransMethodIndex2ID(
 //                        MySharedPreferences.getApplicationSharedPreferences().getInt("TransMethod", 0))))
 //                .setChecked(true);
-    }
+//    }
 
 //    private final int[] map = new int[]{
 //            R.id.rb_trans_method_auto, R.id.rb_trans_method_wlan,

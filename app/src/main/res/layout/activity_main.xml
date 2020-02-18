@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:orientation="vertical"
-
     android:paddingStart="15dp"
     android:paddingEnd="15dp"
     android:showDividers="middle|end|beginning|none">
@@ -27,49 +24,9 @@
         android:id="@+id/plugins_small_ui"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@drawable/divider"
+        android:divider="@drawable/divider_white_1dp"
         android:orientation="vertical" />
 
-    <!--    <LinearLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:orientation="vertical">-->
-
-    <!--        <CheckBox-->
-    <!--            android:id="@+id/cb_send_clipboard"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:tag="SendClipboard"-->
-    <!--            android:text="@string/fun_sendclipboard" />-->
-
-    <!--        <CheckBox-->
-    <!--            android:id="@+id/cb_recv_clipboard"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:tag="RecvClipboard"-->
-    <!--            android:text="@string/fun_recvclipboard" />-->
-
-    <!--        <Button-->
-    <!--            android:id="@+id/btn_share_clipboard"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:text="@string/fun_shareclipboard" />-->
-    <!--    </LinearLayout>-->
-
-    <!--    <Button-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="@string/fun_sendfile" />-->
-
-    <!--    <Button-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="@string/fun_recvfile" />-->
-
-    <!--        <Button-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:text="@string/fun_sharescreen" />-->
 
     <!--    <LinearLayout-->
     <!--        android:layout_width="match_parent"-->

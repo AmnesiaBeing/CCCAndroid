@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="KEY_VERSION">V</string>
+    <string name="KEY_DEVICE_NAME">N</string>
+    <string name="KEY_DEVICE_TYPE">T</string>
+    <string name="KEY_DEVICE_CERTIFICATE">C</string>
+    <string name="KEY_DEVICE_PUBLIC_KEY">PubK</string>
+    <string name="KEY_DEVICE_PRIVATE_KEY">PriK</string>
+    <string name="KEY_DEVICE_UUID">UUID</string>
+    <string name="KEY_DEVICE_FEATURES">F</string>
+    <string name="KEY_DEVICE_IP_PORT">A</string>
+    <string name="KEY_DEVICE_IP">IP</string>
+    <string name="KEY_DEVICE_PORT">Port</string>
+
+</resources>
