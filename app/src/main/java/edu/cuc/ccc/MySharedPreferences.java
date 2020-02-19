@@ -3,22 +3,21 @@ package edu.cuc.ccc;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import static edu.cuc.ccc.MyApplication.appContext;
-
 public class MySharedPreferences {
 
-    private static SharedPreferences sharedPreferences;
+    static boolean isFirstRun(Context context) {
+        SharedPreferences globalSharedPreferences = context.getSharedPreferences(context.getString(R.string.KEY_PREF), Context.MODE_PRIVATE);
+        String keyFirstFlag = context.getResources().getString(R.string.KEY_FIRST_FLAG);
+        boolean ret = globalSharedPreferences.getBoolean(keyFirstFlag, true);
+        globalSharedPreferences.edit().putBoolean(keyFirstFlag, false).apply();
+        return ret;
+    }
 
     public static SharedPreferences getApplicationSharedPreferences() {
-        return sharedPreferences;
+        return MyApplication.appContext.getSharedPreferences(MyApplication.appContext.getString(R.string.KEY_PREF), Context.MODE_PRIVATE);
     }
 
-    public static SharedPreferences getSharedPreferences(String name) {
-        return appContext.getSharedPreferences(name, Context.MODE_PRIVATE);
-    }
-
-    static void initInstant(Context context) {
-        appContext = context;
-        sharedPreferences = context.getSharedPreferences(context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+    public static SharedPreferences getSharedPreferences(String uuid) {
+        return MyApplication.appContext.getSharedPreferences(uuid, Context.MODE_PRIVATE);
     }
 }

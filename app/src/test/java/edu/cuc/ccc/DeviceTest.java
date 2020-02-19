@@ -32,6 +32,6 @@ public class DeviceTest {
         // test OK
         Device info = Device.parseJSONStr(testJSONString3);
         assert (info != null);
-        assert (info.getDeviceType() == Device.DeviceType.Unknown);
+        assert (info.getType() == Device.DeviceType.Unknown);
     }
 }

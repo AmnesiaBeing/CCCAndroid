@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
@@ -32,33 +33,22 @@ public class RPCHandler {
     private static final String TAG = RPCHandler.class.getSimpleName();
 
     // 配对设备地址已知，自身信息已知，插件名称需提供，内容需要提供
-    public void sendRPCRequest(Device targetDevice, String rpc, Callback callback) {
+    public void sendRPCRequest(Device targetDevice, String rpc, Map<String, String> query, Callback callback) {
         OkHttpClient okHttpClient = getOkHttpClient(targetDevice);
-        HttpUrl url = RPCUtil.getHttpUrl(targetDevice);
+        HttpUrl url = RPCUtil.getHttpUrl(targetDevice, query);
+
         Request request = getRequest(url);
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(callback);
+        Call call;
+        if (okHttpClient != null) {
+            call = okHttpClient.newCall(request);
+            call.enqueue(callback);
+        } else {
+            callback.onFailure(null, null);
+        }
     }
 
-    public void sendRPCRequest(Device targetDevice, PluginBase plugin, Callback callback) {
-        sendRPCRequest(targetDevice, plugin.getPluginName(), callback);
-    }
-
-    public static abstract class PairRequestCallback implements Callback {
-        public abstract void onPairRequestError();
-
-        public abstract void onPairRequestComplete();
-
-        @Override
-        public final void onFailure(@NotNull Call call, @NotNull IOException e) {
-            e.printStackTrace();
-            onPairRequestError();
-        }
-
-        @Override
-        public final void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-            onPairRequestComplete();
-        }
+    public void sendRPCRequest(Device targetDevice, PluginBase plugin, Map<String, String> query, Callback callback) {
+        sendRPCRequest(targetDevice, plugin.getPluginName(), query, callback);
     }
 
 }

@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,19 +29,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import edu.cuc.ccc.Device;
 import edu.cuc.ccc.DeviceUtil;
 import edu.cuc.ccc.R;
-import edu.cuc.ccc.backends.BackendService;
+import edu.cuc.ccc.backends.DeviceManager;
 import edu.cuc.ccc.helpers.NFCHelper;
 import edu.cuc.ccc.plugins.PluginBase;
 import edu.cuc.ccc.plugins.PluginFactory;
+import edu.cuc.ccc.plugins.pairplugin.PairPlugin;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class DevicePairActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, NFCHelper.NFCTagEventListener, PluginBase.PluginProcessCallback {
+public class DevicePairActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, NFCHelper.NFCTagEventListener, PairPlugin.PairRequestCallback {
     private static String TAG = DevicePairActivity.class.getSimpleName();
 
     private NFCHelper nfcHelper;
@@ -89,7 +88,7 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
         lv_devices = findViewById(R.id.lv_devices);
 
         lv_devices.setOnItemClickListener((parent, view, position, id) -> {
-            BackendService.getInstance().getDeviceManager().setPairingDevice((Device) adapter.getItem(position));
+            DeviceManager.getInstance().setPairingDevice((Device) adapter.getItem(position));
             PluginFactory.doPluginProcess("pair", DevicePairActivity.this);
         });
 
@@ -103,6 +102,18 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
         lv_devices.setAdapter(adapter);
     }
 
+    DeviceGroupAdapter adapter;
+
+    @Override
+    public void onPairRequestError() {
+
+    }
+
+    @Override
+    public void onPairRequestComplete() {
+
+    }
+
     @Override
     public void PluginProcessMessage(PluginBase plugin, String str) {
 
@@ -110,13 +121,8 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
 
     @Override
     public void PluginProcessComplete(PluginBase plugin, String str) {
-        Message msg = new Message();
-        msg.what = PLUGIN_TASK_COMPLETE;
-        msg.obj = str;
-        handler.sendMessage(msg);
-    }
 
-    DeviceGroupAdapter adapter;
+    }
 
     class DeviceGroupAdapter extends BaseAdapter {
         private List<Device> devices;
@@ -146,13 +152,13 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
         @Override
         public void notifyDataSetChanged() {
             devices.clear();
-            List<Device> tmp = BackendService.getInstance().getDeviceManager().getDevices();
-            Device pD = BackendService.getInstance().getDeviceManager().getPairedDevice();
+            List<Device> tmp = DeviceManager.getInstance().getDevices();
+            Device pD = DeviceManager.getInstance().getPairedDevice();
             if (pD != null) {
                 devices.add(pD);
                 devices.add(null);
             }
-            pD = BackendService.getInstance().getDeviceManager().getPairingDevice();
+            pD = DeviceManager.getInstance().getPairingDevice();
             if (pD != null) {
                 devices.add(pD);
                 devices.add(null);
@@ -175,17 +181,15 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
                 view.setEnabled(false);
             } else {
                 view = inflater.inflate(R.layout.item_device_info, null);
-                ((TextView) view.findViewById(R.id.item_device_name)).setText(device.getDeviceName());
+                ((TextView) view.findViewById(R.id.item_device_name)).setText(device.getName());
                 if (device.isPaired()) {
                     ImageView iv = view.findViewById(R.id.item_device_paired);
                     iv.setVisibility(View.VISIBLE);
                 }
-                if (device.isParing()) {
-                    ProgressBar pb = view.findViewById(R.id.item_device_pairing);
-                    pb.setVisibility(View.VISIBLE);
-                }
+                view.findViewById(R.id.item_device_pairing)
+                        .setVisibility(device.isParing() ? View.VISIBLE : View.GONE);
                 ((ImageView) view.findViewById(R.id.item_device_type)).
-                        setImageDrawable(DevicePairActivity.this.getDrawable(device.getDeviceType().getDrawableId()));
+                        setImageDrawable(DevicePairActivity.this.getDrawable(device.getType().getDrawableId()));
             }
             return view;
         }
@@ -249,9 +253,10 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
             Toast.makeText(this, R.string.scan_QRCode_err, Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, R.string.scan_QRCode_ok, Toast.LENGTH_LONG).show();
-            ((TextView) findViewById(R.id.tv_scan_result)).setText(String.format("%s%s", getString(R.string.dev_name), targetDevice.getDeviceName()));
+            ((TextView) findViewById(R.id.tv_scan_result)).setText(String.format("%s%s", getString(R.string.dev_name), targetDevice.getName()));
             // FIXME:此处存在设计上的逻辑问题
-            BackendService.getInstance().getDeviceManager().putNewFoundDevice(targetDevice);
+            DeviceManager.getInstance().addNewFoundDevice(targetDevice);
+            DeviceManager.getInstance().setPairingDevice(targetDevice);
             nfcHelper.setWriteContent(targetDevice);
         }
     }

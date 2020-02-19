@@ -24,27 +24,6 @@ android {
     }
 }
 
-//protobuf {
-//    protoc { artifact = 'com.google.protobuf:protoc:3.11.0' }
-//    plugins {
-//        grpc {
-//            artifact = 'io.grpc:protoc-gen-grpc-java:1.26.0' // CURRENT_GRPC_VERSION
-//        }
-//    }
-//    generateProtoTasks {
-//        all().each { task ->
-//            task.builtins {
-//                java { option 'lite' }
-//            }
-//            task.plugins {
-//                grpc { // Options added to --grpc_out
-//                    option 'lite'
-//                }
-//            }
-//        }
-//    }
-//}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -64,15 +43,13 @@ dependencies {
     // 简化申请权限代码？的模块
     implementation 'pub.devrel:easypermissions:3.0.0'
 
-    // gRPC，总得有个通信协议吧，Android developer guide推荐这个
-//    implementation 'io.grpc:grpc-okhttp:1.26.0' // CURRENT_GRPC_VERSION
-//    implementation 'io.grpc:grpc-protobuf-lite:1.26.0' // CURRENT_GRPC_VERSION
-//    implementation 'io.grpc:grpc-stub:1.26.0' // CURRENT_GRPC_VERSION
-//    implementation 'javax.annotation:javax.annotation-api:1.2'
+    // 证书生成
+    implementation 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
 
+    // 简化http通信操作
     implementation("com.squareup.okhttp3:okhttp:4.3.1")
 
-    // 学习kdeconnect，可加载的插件？
+    // 插件可加载化
     implementation 'org.atteo.classindex:classindex:3.6'
     annotationProcessor 'org.atteo.classindex:classindex:3.6'
 }

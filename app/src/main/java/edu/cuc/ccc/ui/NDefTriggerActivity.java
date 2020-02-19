@@ -1,18 +1,25 @@
 package edu.cuc.ccc.ui;
 
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcelable;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import edu.cuc.ccc.Device;
 import edu.cuc.ccc.R;
+import edu.cuc.ccc.backends.BackendService;
+import edu.cuc.ccc.backends.DeviceManager;
 import edu.cuc.ccc.plugins.PluginBase;
 import edu.cuc.ccc.plugins.PluginFactory;
 
@@ -55,7 +62,29 @@ public class NDefTriggerActivity extends AppCompatActivity implements PluginBase
         if (action == null) {
             finish();
         } else if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
-            // TODO: 读取存储的HASH信息
+            // 这个数组长度通常只有1,因为只能有一个NdefMessage
+            Parcelable[] raw = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+            String uuid;
+            if (raw != null) {
+                // 一个NdefMessage中有许多的记录NdefRecord
+                NdefMessage m = (NdefMessage) raw[0];
+                // 按照写入的规则，只读取第1条记录中的数据（序号从0开始）
+                NdefRecord[] records = m.getRecords();
+                if (records.length >= 1) {
+                    uuid = new String(records[1].getPayload());
+                    Log.i(TAG, "onCreate: " + uuid);
+                    Device d = DeviceManager.getInstance().searchDevice(uuid);
+                    if (d == null) {
+                        // 如果为空，说明从来没配对过，这个客户端不可信任，需要弹出提示框，说明这项操作不被允许
+                        Toast.makeText(this, "读取NFC标签异常，客户端不被信任。", Toast.LENGTH_LONG).show();
+                        finish();
+                    } else {
+                        DeviceManager.getInstance().addNewFoundDevice(d);
+                        DeviceManager.getInstance().setPairingDevice(d);
+                    }
+                }
+            }
+            // Whatever，试一试吧
             PluginFactory.doPluginProcess("pair", this);
         } else {
             if (pluginName != null && !pluginName.isEmpty())

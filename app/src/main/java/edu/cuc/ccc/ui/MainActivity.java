@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.Map;
 
 import edu.cuc.ccc.R;
+import edu.cuc.ccc.backends.BackendService;
+import edu.cuc.ccc.backends.DeviceManager;
 import edu.cuc.ccc.plugins.PluginBase;
 import edu.cuc.ccc.plugins.PluginFactory;
 
@@ -24,6 +26,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (DeviceManager.getInstance().getLastPairedDevice() == null) {
+            Intent intent = new Intent(this, DevicePairActivity.class);
+            startActivity(intent);
+        }
+
         initViews();
     }
 

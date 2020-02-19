@@ -11,5 +11,8 @@
     <string name="KEY_DEVICE_IP_PORT">A</string>
     <string name="KEY_DEVICE_IP">IP</string>
     <string name="KEY_DEVICE_PORT">Port</string>
+    <string name="KEY_SYSTEM_CERTIFICATE">SYSCERT</string>
+    <string name="KEY_FIRST_FLAG">KEY_FIRST_FLAG</string>
+    <string name="KEY_PREF">pref</string>
 
 </resources>

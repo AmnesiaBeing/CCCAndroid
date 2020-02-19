@@ -18,7 +18,7 @@ import java.io.IOException;
 
 import edu.cuc.ccc.Device;
 import edu.cuc.ccc.R;
-import edu.cuc.ccc.backends.BackendService;
+import edu.cuc.ccc.backends.DeviceManager;
 
 public class NFCHelper {
     private static String TAG = NFCHelper.class.getSimpleName();
@@ -35,7 +35,6 @@ public class NFCHelper {
     private NFCTagEventListener mListener;
 
     private Device targetDevice;
-//    private boolean enable = false;
 
     public NFCHelper(Context context) {
         this.mContext = context;
@@ -68,11 +67,9 @@ public class NFCHelper {
         mTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         // 有写入数据时才写入内容嘛
         if (targetDevice == null) {
-//            mListener.onNFCTagWriteError(R.string.tag_unknown_device);
-            targetDevice = BackendService.getInstance().getDeviceManager().getPairedDevice();
+            targetDevice = DeviceManager.getInstance().getPairedDevice();
         }
         if (targetDevice != null) {
-//            if (enable)
             writeTag();
         }
         // TODO:判断标签是否已经写过同类型的数据？
@@ -92,7 +89,7 @@ public class NFCHelper {
     }
 
 //    public void refreshWriteContent() {
-//        targetDevice = BackendService.getInstance().getDeviceManager().getPairedDevice();
+//        targetDevice = DeviceManager.getInstance().getPairedDevice();
 //    }
 
     public interface NFCTagEventListener {
@@ -107,9 +104,10 @@ public class NFCHelper {
         // 要点是：第一条记录在清单文件中有所表示，最后一条记录是AAR
         // NdefMessage msgs = new NdefMessage(new NdefRecord[]{NdefRecord.createUri("ccc://devname")});
         // NdefMessage msgs = new NdefMessage(new NdefRecord[]{NdefRecord.createExternal("ccc.local", "test", new byte[0])});
+        // 中间的记录为信任目标设备所需的加密信息（明文存储？）
         return new NdefMessage(new NdefRecord[]{
                 NdefRecord.createExternal("ccc.local", "ccctag", new byte[0]),
-                // TODO:sth about device
+                NdefRecord.createTextRecord(null, targetDevice.getUUID()),
                 NdefRecord.createApplicationRecord(mContext.getPackageName())});
     }
 

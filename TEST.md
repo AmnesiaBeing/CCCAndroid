@@ -8,6 +8,3 @@
 > 1. https://wiki.archlinux.org/index.php/Avahi
 > 2. https://developer.android.com/training/connect-devices-wirelessly/nsd
 
-## gRPC
-
-一个开源的RPC协议，不然自个实现就太复杂了。

@@ -1,54 +1,32 @@
 package edu.cuc.ccc.backends;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Base64;
-import android.util.Log;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.math.BigInteger;
+import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509ExtendedTrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import edu.cuc.ccc.Device;
 import edu.cuc.ccc.DeviceUtil;
-import edu.cuc.ccc.MySharedPreferences;
+import edu.cuc.ccc.MyApplication;
+import edu.cuc.ccc.R;
 import okhttp3.Dns;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -56,127 +34,68 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 // 这个类主要负责SSL相关的东西
-public class RPCUtil {
+/*
+认证流程：（规划）
+0、C首先发送的是pair请求
+1、C发送连接请求，获取S的证书与公钥（由CA的私钥加密而得），如果通过二维码得知S的存在，则可以从二维码中获得pin码
+2-1、首先判断S的证书是否符合要求（自签名证书），如果不是，该服务器不是本程序所需要的服务器
+3、C判断自身是否存储有S的证书与公钥，即是否曾经连接过S
+3-1、如果是，使用证书解密得到公钥，与储存的公钥对比，如果不同，通知用户作出决定，相同则C信任S
+4、C将自身的证书与公钥，以及pin码(get-url)，发送给S
+5、S判断是否已有证书，如果已有证书，S信任C，认证过程完成，pair请求返回需要执行的动作
+6、S判断pin码是否二维码生成，如果是，记录证书，认证过程完毕
+6-1、如果不是，S返回需要再次认证的消息，并且S弹出提示，要求用户确认，确认并记录
+参考资料：https://blog.csdn.net/dtlscsl/article/details/50118225
+*/
 
-    public static void initialiseRsaKeys() {
-        SharedPreferences settings = MySharedPreferences.getApplicationSharedPreferences();
+class RPCUtil {
 
-        if (!settings.contains("publicKey") || !settings.contains("privateKey")) {
+    // 由于目前软件使用自签名证书，所以，将服务器中的证书存储在设备中
+    private static X509Certificate getX509SystemCertificate() throws CertificateException {
+        return (X509Certificate) CertificateFactory.getInstance("X.509")
+                .generateCertificate(MyApplication.appContext.getResources().openRawResource(R.raw.server));
+    }
 
-            KeyPair keyPair;
-            try {
-                KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-                keyGen.initialize(2048);
-                keyPair = keyGen.genKeyPair();
-            } catch (Exception e) {
-                Log.e("KDE/initializeRsaKeys", "Exception", e);
-                return;
-            }
+    // Java使用KeyTool管理各种密钥
+    private static KeyStore getKeyStore(Device targetDevice) throws GeneralSecurityException, IOException {
+        // 使用java的KetTool密钥管理器管理密钥，这里将存储所有使用过的证书
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, null);
 
-            byte[] publicKey = keyPair.getPublic().getEncoded();
-            byte[] privateKey = keyPair.getPrivate().getEncoded();
+        // 添加自己的私钥和证书
+        keyStore.setKeyEntry("key",
+                DeviceManager.getInstance().getMyDevice().getPrivateKey(),
+                "".toCharArray(),
+                new Certificate[]{DeviceManager.getInstance().getMyDevice().getCertificate()});
 
-            SharedPreferences.Editor edit = settings.edit();
-            edit.putString("publicKey", Base64.encodeToString(publicKey, 0).trim() + "\n");
-            edit.putString("privateKey", Base64.encodeToString(privateKey, 0));
-            edit.apply();
+        // 添加自签名证书
+        X509Certificate systemCertificate = getX509SystemCertificate();
+        if (systemCertificate != null) {
+            keyStore.setCertificateEntry(targetDevice.getUUID(), systemCertificate);
         }
+
+        return keyStore;
     }
 
-    public static PublicKey getPublicKey() throws GeneralSecurityException {
-        SharedPreferences settings = MySharedPreferences.getApplicationSharedPreferences();
-        byte[] publicKeyBytes = Base64.decode(settings.getString("publicKey", ""), 0);
-        return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+    // TrustManager决定服务器是否值得信任
+    private static TrustManager[] getTrustManagers(Device targetDevice) throws GeneralSecurityException, IOException {
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(getKeyStore(targetDevice));
+        return trustManagerFactory.getTrustManagers();
     }
 
-    public static PrivateKey getPrivateKey() throws GeneralSecurityException {
-        SharedPreferences settings = MySharedPreferences.getApplicationSharedPreferences();
-        byte[] privateKeyBytes = Base64.decode(settings.getString("privateKey", ""), 0);
-        return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+    // KeyManager决定将哪一个证书发送给对端服务器
+    private static KeyManager[] getKeyManagers(Device targetDevice) throws GeneralSecurityException, IOException {
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(getKeyStore(targetDevice), "".toCharArray());
+        return keyManagerFactory.getKeyManagers();
     }
 
-    private static KeyStore getKeyStore(Device targetDevice) {
-        try {
-            // 使用java的KetTool密钥管理器管理密钥
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(null, null);
-
-            X509Certificate remoteDeviceCertificate = getX509CertificateFromString(targetDevice.getCertificate());
-
-            // 如果是已配对设备，将它的证书也存进来
-            if (remoteDeviceCertificate != null) {
-                keyStore.setCertificateEntry(targetDevice.getDeviceUUID(), remoteDeviceCertificate);
-            }
-            return keyStore;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private static X509Certificate getX509CertificateFromString(String certString) throws CertificateException {
-        return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(certString.getBytes()));
-    }
-
-//    private static X509TrustManager[] getTrustManagers(Device targetDevice) {
-//        if (targetDevice.isPaired()) {
-//            try {
-//                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-//                trustManagerFactory.init(getKeyStore(targetDevice));
-//                return (X509TrustManager[]) trustManagerFactory.getTrustManagers();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                return null;
-//            }
-//        } else {
-//            // 信任所有的证书，用于未配对时，不管对方是什么，先把信息接受了再说
-//            return new X509TrustManager[]{new X509TrustManager() {
-//                public X509Certificate[] getAcceptedIssuers() {
-//                    return new X509Certificate[0];
-//                }
-//
-//                @SuppressLint("TrustAllX509TrustManager")
-//                @Override
-//                public void checkClientTrusted(X509Certificate[] certs, String authType) {
-//                }
-//
-//                @SuppressLint("TrustAllX509TrustManager")
-//                @Override
-//                public void checkServerTrusted(X509Certificate[] certs, String authType) {
-//                }
-//            }};
-//        }
-//    }
-
-    // 这部分代码还没写好，为了测试，就完全信任吧
-    private static X509TrustManager[] getTrustManagers(Device targetDevice) {
-        // 信任所有的证书，用于未配对时，不管对方是什么，先把信息接受了再说
-        return new X509TrustManager[]{new X509TrustManager() {
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[0];
-            }
-
-            @SuppressLint("TrustAllX509TrustManager")
-            @Override
-            public void checkClientTrusted(X509Certificate[] certs, String authType) {
-            }
-
-            @SuppressLint("TrustAllX509TrustManager")
-            @Override
-            public void checkServerTrusted(X509Certificate[] certs, String authType) {
-            }
-        }};
-    }
-
+    // SSL验证的上下文，提供所需要的证书什么的
     private static SSLContext getSslContext(Device targetDevice) {
         try {
-            // Setup key manager factory
-//            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-//            keyManagerFactory.init(getKeyStore(targetDevice), "".toCharArray());
-
             SSLContext tlsContext = SSLContext.getInstance("TLS");
-//            tlsContext.init(keyManagerFactory.getKeyManagers(), getTrustManagers(targetDevice), new SecureRandom());
-            tlsContext.init(null, getTrustManagers(targetDevice), new SecureRandom());
+            tlsContext.init(getKeyManagers(targetDevice), getTrustManagers(targetDevice), new SecureRandom());
 
             return tlsContext;
         } catch (Exception e) {
@@ -185,25 +104,29 @@ public class RPCUtil {
         return null;
     }
 
-    static HttpUrl getHttpUrl(Device targetDevice) {
-        String targetHost = targetDevice.getDeviceName() + ".local";
-        int targetPort = targetDevice.getDeviceIPPortAddress().get(0).getPort();
-        return new HttpUrl.Builder()
+    static HttpUrl getHttpUrl(Device targetDevice, Map<String, String> query) {
+        String targetHost = targetDevice.getName() + ".local";
+        int targetPort = targetDevice.getIPPortAddress().get(0).getPort();
+        HttpUrl.Builder builder = new HttpUrl.Builder()
                 .scheme("https")
                 .host(targetHost)
-                .port(targetPort)
-                .build();
+                .port(targetPort);
+        for (Map.Entry<String, String> entry : query.entrySet()) {
+            builder.addQueryParameter(entry.getKey(), entry.getValue());
+        }
+        return builder.build();
     }
 
     static OkHttpClient getOkHttpClient(Device targetDevice) {
         try {
             return new OkHttpClient.Builder()
                     .readTimeout(5, TimeUnit.SECONDS)
-                    .hostnameVerifier((hostname, session) -> true)
+                    .hostnameVerifier((hostname, session) -> hostname.equals(targetDevice.getName() + ".local"))
                     .dns(getLocalDns(targetDevice))
-                    .sslSocketFactory(Objects.requireNonNull(getSslContext(targetDevice)).getSocketFactory(), getTrustManagers(targetDevice)[0])
+                    .sslSocketFactory(Objects.requireNonNull(getSslContext(targetDevice)).getSocketFactory(), (X509TrustManager) getTrustManagers(targetDevice)[0])
                     .build();
         } catch (Exception e) {
+            // TODO:针对不同错误作出处理，比如重新生成密钥和证书
             e.printStackTrace();
         }
         return null;
@@ -211,8 +134,13 @@ public class RPCUtil {
 
     private static Dns getLocalDns(Device targetDevice) {
         return s -> {
-            if (s.equals(targetDevice.getDeviceName() + ".local")) {
-                return targetDevice.getDeviceIPPortAddress().stream().map(DeviceUtil.IPPortAddr::getAddr).collect(Collectors.toList());
+            if (s.equals(targetDevice.getName() + ".local")) {
+                List<InetAddress> ret = new ArrayList<>();
+                List<DeviceUtil.IPPortAddr> tmp = targetDevice.getIPPortAddress();
+                for (DeviceUtil.IPPortAddr p : tmp) {
+                    ret.add(p.getAddr());
+                }
+                return ret;
             } else {
                 throw new UnknownHostException();
             }

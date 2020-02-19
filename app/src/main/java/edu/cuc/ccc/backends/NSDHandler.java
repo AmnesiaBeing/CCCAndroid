@@ -6,7 +6,8 @@ import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 
 import edu.cuc.ccc.Device;
-import edu.cuc.ccc.DeviceUtil;
+
+import static edu.cuc.ccc.DeviceUtil.*;
 
 // 负责管理网络发现的的类
 class NSDHandler {
@@ -104,16 +105,17 @@ class NSDHandler {
                 // 考虑到一个局域网内有多个mdns服务响应？
                 Log.e(TAG, "Resolve Succeeded. " + serviceInfo);
                 Device device = new Device();
-                device.setDeviceName(serviceInfo.getServiceName());
-                device.addDeviceIPPortAddress(
-                        new DeviceUtil.IPPortAddr(serviceInfo.getHost(), serviceInfo.getPort())
+                device.setName(serviceInfo.getServiceName());
+                device.addIPPortAddress(
+                        new IPPortAddr(serviceInfo.getHost(), serviceInfo.getPort())
                 );
                 byte[] rawDT = serviceInfo.getAttributes().get("DT");
-                device.setDeviceType((rawDT != null) ?
-                        DeviceUtil.DeviceType.valueOf(new String(rawDT)) : DeviceUtil.DeviceType.Unknown);
-                BackendService.getInstance().
-                        getDeviceManager().
-                        putNewFoundDevice(device);
+                byte[] rawUUID = serviceInfo.getAttributes().get("UUID");
+                if (rawUUID == null) return;
+                device.setType((rawDT != null) ?
+                        DeviceType.valueOfEX(new String(rawDT)) : DeviceType.Unknown);
+                device.setUUID(new String(rawUUID));
+                DeviceManager.getInstance().addNewFoundDevice(device);
             }
         };
     }

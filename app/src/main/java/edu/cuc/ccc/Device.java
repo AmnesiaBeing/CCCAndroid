@@ -1,7 +1,8 @@
 package edu.cuc.ccc;
 
-import org.jetbrains.annotations.NotNull;
-
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,24 +16,32 @@ import edu.cuc.ccc.DeviceUtil.IPPortAddr;
 public class Device {
     private final static String TAG = Device.class.getSimpleName();
 
-    public Device() {
-    }
-
-    public Device(String uuid, String name, DeviceType type, String cert, String pubKey, String priKey) {
+    // for me
+    public Device(String uuid, String name, DeviceType type, Certificate cert, PublicKey pubk, PrivateKey priv) {
         this.mUUID = uuid;
-        this.mDeviceName = name;
-        this.mDeviceType = type;
+        this.mName = name;
+        this.mType = type;
         this.mCertificate = cert;
-        this.mPublicKey = pubKey;
-        this.mPrivateKey = priKey;
+        this.mPublicKey = pubk;
+        this.mPrivateKey = priv;
     }
 
-    //----------------------------------------------------------------------------------------------
+    // for new device from qrcode
+    public Device(String uuid, String name, DeviceType type, String pin) {
+        this.mUUID = uuid;
+        this.mName = name;
+        this.mType = type;
+        this.mPIN = pin;
+    }
 
-    @NotNull
-    @Override
-    public String toString() {
-        return DeviceUtil.toJSONStr(this);
+    // for new device from nsd, ndef
+    public Device(String uuid, String name, DeviceType type) {
+        this.mUUID = uuid;
+        this.mName = name;
+        this.mType = type;
+    }
+
+    public Device() {
     }
 
     //----------------------------------------------------------------------------------------------
@@ -43,24 +52,30 @@ public class Device {
     // 协议版本号
     private int mProtocolVersion = ProtocolVersion;
     // 设备名称
-    private String mDeviceName;
+    private String mName;
     // 设备ID
     private String mUUID;
     // 设备类型
-    private DeviceUtil.DeviceType mDeviceType = DeviceUtil.DeviceType.Unknown;
+    private DeviceUtil.DeviceType mType = DeviceUtil.DeviceType.Unknown;
     // 通过网络发现得到的IP地址与端口号
     private List<IPPortAddr> ipPortAddrs = new ArrayList<>();
     // TODO:通过二维码添加得到的物理信息
     //
+    // 通过二维码扫描会有个PIN码
+    private String mPIN;
     // 设备支持的插件
     private List<String> mSupportFeatures = new ArrayList<>();
     // 设备配对状态
     private DeviceStatus mStatus = DeviceStatus.Unknown;
     // 设备证书
-    private String mCertificate;
+    private Certificate mCertificate;
     // 设备密钥（私钥只有自己知道）
-    private String mPublicKey;
-    private String mPrivateKey;
+    private PublicKey mPublicKey;
+    private PrivateKey mPrivateKey;
+    // 是否记录
+    private boolean mRecorded = false;
+    // 是否发现
+    private boolean mDiscovered = false;
 
     //----------------------------------------------------------------------------------------------
 
@@ -72,29 +87,29 @@ public class Device {
         this.mProtocolVersion = mProtocolVersion;
     }
 
-    public List<IPPortAddr> getDeviceIPPortAddress() {
+    public List<IPPortAddr> getIPPortAddress() {
         return ipPortAddrs;
     }
 
-    public void addDeviceIPPortAddress(IPPortAddr addr) {
+    public void addIPPortAddress(IPPortAddr addr) {
         ipPortAddrs.add(addr);
     }
 
-    public String getDeviceName() {
-        return mDeviceName;
+    public String getName() {
+        return mName;
     }
 
-    public void setDeviceName(String mDeviceName) {
-        this.mDeviceName = mDeviceName;
+    public void setName(String mDeviceName) {
+        this.mName = mDeviceName;
     }
 
-    public DeviceType getDeviceType() {
-        return mDeviceType;
+    public DeviceType getType() {
+        return mType;
     }
 
-    public void setDeviceType(DeviceType deviceType) {
+    public void setType(DeviceType deviceType) {
         if (deviceType == null) deviceType = DeviceType.Unknown;
-        this.mDeviceType = deviceType;
+        this.mType = deviceType;
     }
 
     public boolean isPaired() {
@@ -105,45 +120,47 @@ public class Device {
         return this.mStatus == DeviceStatus.Pairing;
     }
 
-//    public boolean isRecorded() {
-//        return ((this.mStatus == DeviceStatus.Recorded_Discovered) ||
-//                (this.mStatus == DeviceStatus.Recorded_but_not_Discovered) ||
-//                (this.mStatus == DeviceStatus.Pairing) ||
-//                (this.mStatus == DeviceStatus.Paired));
-//    }
-//
-//    public boolean isDiscovered() {
-//        return ((this.mStatus == DeviceStatus.Recorded_Discovered) ||
-//                (this.mStatus == DeviceStatus.Discovered_but_not_Recorded) ||
-//                (this.mStatus == DeviceStatus.Pairing) ||
-//                (this.mStatus == DeviceStatus.Paired));
-//    }
+    public boolean isRecorded() {
+        return mRecorded;
+    }
 
-    public String getDeviceUUID() {
+    public void setRecorded(boolean value) {
+        mRecorded = value;
+    }
+
+    public boolean isDiscovered() {
+        return mDiscovered;
+    }
+
+    public String getUUID() {
         return mUUID;
     }
 
-    public String getCertificate() {
+    public void setUUID(String UUID) {
+        this.mUUID = UUID;
+    }
+
+    public Certificate getCertificate() {
         return mCertificate;
     }
 
-    public void setCertificate(String certificate) {
+    public void setCertificate(Certificate certificate) {
         this.mCertificate = certificate;
     }
 
-    public String getPublicKey() {
+    public PublicKey getPublicKey() {
         return mPublicKey;
     }
 
-    public void setPublicKey(String key) {
+    public void setPublicKey(PublicKey key) {
         this.mPublicKey = key;
     }
 
-    public String getPrivateKey() {
+    public PrivateKey getPrivateKey() {
         return mPrivateKey;
     }
 
-    public void setPrivateKey(String key) {
+    public void setPrivateKey(PrivateKey key) {
         this.mPrivateKey = key;
     }
 
@@ -163,7 +180,11 @@ public class Device {
         this.mStatus = status;
     }
 
-    public void setUUID(String UUID) {
-        this.mUUID = UUID;
+    public String getPIN() {
+        return mPIN;
+    }
+
+    public void setPIN(String PIN) {
+        this.mPIN = PIN;
     }
 }

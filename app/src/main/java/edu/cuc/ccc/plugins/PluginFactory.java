@@ -9,9 +9,6 @@ import org.atteo.classindex.IndexAnnotated;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.cuc.ccc.MySharedPreferences;
-import edu.cuc.ccc.backends.BackendService;
-
 public class PluginFactory {
 
     private static final String TAG = PluginFactory.class.getSimpleName();
@@ -29,7 +26,7 @@ public class PluginFactory {
     }
 
     // TODO:实现快慢加载？
-    public static void initPluginInfo(Context context) {
+    public static void initPluginInfo() {
         for (Class<?> pluginClass : ClassIndex.getAnnotated(LoadablePlugins.class)) {
             PluginBase plugin;
             try {

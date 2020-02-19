@@ -24,7 +24,7 @@ public class RPCTest {
     public void useAppContext() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        Device targetDevice = new Device();
+        Device targetDevice = new Device(uuid, name, type, cert, pubk, priv);
         try {
             targetDevice.setDeviceIPAddress(new ArrayList<Device.IPPortAddr>() {{
                 add(new Device.IPPortAddr(InetAddress.getByName("192.168.1.4"), 8888));

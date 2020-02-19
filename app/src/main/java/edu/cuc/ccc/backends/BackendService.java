@@ -25,11 +25,10 @@ public class BackendService extends Service {
     }
 
     private NotificationHelper notificationHelper;
-    private BTHelper btHelper;
+//    private BTHelper btHelper;
     private NSDHandler nsdHandler;
 //    private NetworkHelper networkHelper;
 
-    private DeviceManager deviceManager;
     private RPCHandler rpcHandler;
 
     @Override
@@ -45,13 +44,11 @@ public class BackendService extends Service {
     public void onCreate() {
         Log.i(TAG, "onCreate");
 
-        deviceManager = new DeviceManager();
-
         notificationHelper = new NotificationHelper(this);
         notificationHelper.onCreate();
 
-        btHelper = new BTHelper(this);
-        btHelper.onCreate();
+//        btHelper = new BTHelper(this);
+//        btHelper.onCreate();
 
         nsdHandler = new NSDHandler(this);
         nsdHandler.onCreate();
@@ -63,7 +60,7 @@ public class BackendService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
         notificationHelper.onDestroy();
-        btHelper.onDestroy();
+//        btHelper.onDestroy();
         nsdHandler.onDestroy();
     }
 
@@ -85,10 +82,6 @@ public class BackendService extends Service {
 //    public NSDHandler getNsdHandler() {
 //        return nsdHandler;
 //    }
-
-    public DeviceManager getDeviceManager() {
-        return deviceManager;
-    }
 
     public RPCHandler getRpcHandler() {
         return rpcHandler;

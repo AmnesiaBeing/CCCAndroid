@@ -1,10 +1,7 @@
 package edu.cuc.ccc.plugins;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.View;
-
-import edu.cuc.ccc.backends.BackendService;
 
 public abstract class PluginBase {
     // 能够实现每个类自行生成这个TAG字符串嘛？
