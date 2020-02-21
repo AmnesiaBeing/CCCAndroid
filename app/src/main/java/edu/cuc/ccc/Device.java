@@ -1,10 +1,14 @@
 package edu.cuc.ccc;
 
+import android.util.ArraySet;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import edu.cuc.ccc.DeviceUtil.DeviceStatus;
 import edu.cuc.ccc.DeviceUtil.DeviceType;
@@ -64,7 +68,7 @@ public class Device {
     // 通过二维码扫描会有个PIN码
     private String mPIN;
     // 设备支持的插件
-    private List<String> mSupportFeatures = new ArrayList<>();
+    private Set<String> mSupportFeatures = new ArraySet<>();
     // 设备配对状态
     private DeviceStatus mStatus = DeviceStatus.Unknown;
     // 设备证书
@@ -93,6 +97,10 @@ public class Device {
 
     public void addIPPortAddress(IPPortAddr addr) {
         ipPortAddrs.add(addr);
+    }
+
+    public void addIPPortAddresses(List<IPPortAddr> addrs) {
+        ipPortAddrs.addAll(addrs);
     }
 
     public String getName() {
@@ -164,12 +172,16 @@ public class Device {
         this.mPrivateKey = key;
     }
 
-    public List<String> getSupportFeatures() {
+    public Set<String> getSupportFeatures() {
         return mSupportFeatures;
     }
 
-    public void addSupportFeatures(String supportFeatures) {
-        this.mSupportFeatures.add(supportFeatures);
+    public void addSupportFeature(String supportFeature) {
+        this.mSupportFeatures.add(supportFeature);
+    }
+
+    public void addSupportFeatures(Set<String> supportFeatures) {
+        this.mSupportFeatures.addAll(supportFeatures);
     }
 
     public DeviceStatus getStatus() {

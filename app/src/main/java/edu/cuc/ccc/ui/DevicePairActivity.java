@@ -90,6 +90,7 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
         lv_devices.setOnItemClickListener((parent, view, position, id) -> {
             DeviceManager.getInstance().setPairingDevice((Device) adapter.getItem(position));
             PluginFactory.doPluginProcess("pair", DevicePairActivity.this);
+            adapter.notifyDataSetChanged();
         });
 
         TextView tv_nfc_status = findViewById(R.id.tv_nfc_status);
@@ -182,14 +183,27 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
             } else {
                 view = inflater.inflate(R.layout.item_device_info, null);
                 ((TextView) view.findViewById(R.id.item_device_name)).setText(device.getName());
-                if (device.isPaired()) {
-                    ImageView iv = view.findViewById(R.id.item_device_paired);
-                    iv.setVisibility(View.VISIBLE);
-                }
-                view.findViewById(R.id.item_device_pairing)
-                        .setVisibility(device.isParing() ? View.VISIBLE : View.GONE);
+
                 ((ImageView) view.findViewById(R.id.item_device_type)).
                         setImageDrawable(DevicePairActivity.this.getDrawable(device.getType().getDrawableId()));
+
+                ImageView iv = view.findViewById(R.id.item_device_paired);
+                View pb = view.findViewById(R.id.item_device_pairing);
+                iv.setVisibility(View.GONE);
+                pb.setVisibility(View.GONE);
+                switch (device.getStatus()) {
+                    case Paired:
+                        iv.setImageDrawable(getDrawable(R.drawable.ic_check_black_24dp));
+                        iv.setVisibility(View.VISIBLE);
+                        break;
+                    case Pairing:
+                        pb.setVisibility(View.VISIBLE);
+                        break;
+                    case Error:
+                        iv.setImageDrawable(getDrawable(R.drawable.ic_error_black_24dp));
+                        iv.setVisibility(View.VISIBLE);
+                        break;
+                }
             }
             return view;
         }

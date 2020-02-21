@@ -85,6 +85,8 @@ public class PairPlugin extends PluginBase implements Callback {
                             callback.onPairRequestComplete();
                         }
                         break;
+                    case "Unauthorized":
+                        break;
                     case "fail":
                         DeviceManager.getInstance().setPairingDevice2UnknownDevice();
                         if (callback != null) {

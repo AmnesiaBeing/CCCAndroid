@@ -47,7 +47,9 @@ public class DeviceUtil {
         // 已配对
         Paired,
         // 正在配对
-        Pairing
+        Pairing,
+        // 配对错误
+        Error
     }
 
     public enum AddrType {

@@ -2,18 +2,19 @@ package edu.cuc.ccc.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Map;
 
+import edu.cuc.ccc.Device;
 import edu.cuc.ccc.R;
-import edu.cuc.ccc.backends.BackendService;
 import edu.cuc.ccc.backends.DeviceManager;
 import edu.cuc.ccc.plugins.PluginBase;
 import edu.cuc.ccc.plugins.PluginFactory;
@@ -31,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, DevicePairActivity.class);
             startActivity(intent);
         }
-
         initViews();
     }
 
@@ -53,15 +53,26 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         setContentView(R.layout.activity_main);
 
+        TextView tv_tip_unpaired = findViewById(R.id.tv_tip_unpaired);
+
+        Device device = DeviceManager.getInstance().getPairedDevice();
+        if (device != null) {
+            tv_tip_unpaired.setVisibility(View.GONE);
+            initPluginViews(device);
+        } else {
+            tv_tip_unpaired.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void initPluginViews(Device device) {
         // 加载插件在主界面的选项界面
         LinearLayout ll = findViewById(R.id.plugins_small_ui);
         Map<String, PluginBase> plugins = PluginFactory.getPlugins();
         for (PluginBase plugin : plugins.values()) {
-            if (plugin.hasViewInMainActivity()) {
+            if (plugin.hasViewInMainActivity() && device.getSupportFeatures().contains(plugin.getPluginName())) {
                 ll.addView(plugin.getViewInMainActivity(this));
             }
         }
-
     }
 
 //    @Override

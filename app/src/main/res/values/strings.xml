@@ -36,5 +36,6 @@
     <string name="tip_nfc_prepared">请将手机靠近NFC标签</string>
     <string name="tip_paired_device">当前已配对设备：</string>
     <string name="KEY_PIN">PIN</string>
+    <string name="tip_unpaired">当前无配对设备。</string>
 
 </resources>

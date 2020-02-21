@@ -20,6 +20,14 @@
         android:textColor="@color/colorPrimary"
         android:textSize="35sp" />
 
+    <TextView
+        android:id="@+id/tv_tip_unpaired"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/tip_unpaired"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/plugins_small_ui"
         android:layout_width="match_parent"
