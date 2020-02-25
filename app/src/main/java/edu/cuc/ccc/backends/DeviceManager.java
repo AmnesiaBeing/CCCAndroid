@@ -2,22 +2,22 @@ package edu.cuc.ccc.backends;
 
 import android.content.SharedPreferences;
 
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.cuc.ccc.Device;
-import edu.cuc.ccc.DeviceUtil;
-import edu.cuc.ccc.MyApplication;
 import edu.cuc.ccc.MySharedPreferences;
 import edu.cuc.ccc.R;
 
-import static edu.cuc.ccc.DeviceUtil.DeviceType;
+import static edu.cuc.ccc.utils.DeviceUtil.DeviceType;
+import static edu.cuc.ccc.utils.DeviceUtil.getX509CertificateFromBase64EncodedString;
 import static edu.cuc.ccc.MyApplication.appContext;
 
-// 负责管理发现的设备（包括自己）
+// 负责管理设备信息（包括自己）
+// 20200221重新思考了一下，这个软件只为1对1的连接服务，完全不需要考虑多设备的情况
 public class DeviceManager {
 
     private static final String TAG = DeviceManager.class.getSimpleName();
@@ -37,47 +37,50 @@ public class DeviceManager {
     // 本设备的信息
     private Device myDevice = new Device();
 
-    // UUID,Device
+    // TODO:优化连接方式的存储方法
+    // 这个MAP只记录通过网络发现的设备信息，所以在这里头的都有连接方式
     private Map<String, Device> knownDevices = new LinkedHashMap<>();
 
+    private Device lastUsedDevice;
+
     private static final String KEY_LAST_PAIRED_UUID = "LPD";
-    private static final String KEY_RECORDED_UUIDS = "LPD";
 
-    // 从配置信息中读取记录过的设备们
-    public void restoreRecordedDevices() {
-        SharedPreferences applicationSharedPreferences = MySharedPreferences.getApplicationSharedPreferences();
-        Set<String> uuids = applicationSharedPreferences.getStringSet(KEY_RECORDED_UUIDS, null);
-        if (uuids == null) return;
-        for (String uuid : uuids) {
-            SharedPreferences deviceSharedPreferences = MySharedPreferences.getSharedPreferences(uuid);
-            String tmp = deviceSharedPreferences.getString(appContext.getString(R.string.KEY_DEVICE_UUID), null);
-            if (tmp != null) {
-                String name = deviceSharedPreferences.getString(appContext.getString(R.string.KEY_DEVICE_NAME), null);
-                DeviceType type = DeviceType.valueOfEX(deviceSharedPreferences.getString(appContext.getString(R.string.KEY_DEVICE_TYPE), null));
-                addNewFoundDevice(new Device(uuid, name, type));
-            }
-        }
-    }
-
-    // TODO:考虑一下加载的流程？
     // 从配置中读取上一次连接的配对信息
-    public Device getLastPairedDevice() {
+    public String getLastPairedDeviceUUID() {
         SharedPreferences applicationSharedPreferences = MySharedPreferences.getApplicationSharedPreferences();
-        String uuid = applicationSharedPreferences.getString(KEY_LAST_PAIRED_UUID, null);
-        if (uuid == null) return null;
-        return knownDevices.get(uuid);
+        return applicationSharedPreferences.getString(KEY_LAST_PAIRED_UUID, null);
     }
 
-    public void setLastPairedDevice(Device device) {
+    // 设置上一次连接的设备UUID
+    public void setLastPairedDeviceUUID(String uuid) {
         SharedPreferences applicationSharedPreferences = MySharedPreferences.getApplicationSharedPreferences();
-        String uuid = device.getUUID();
         applicationSharedPreferences.edit()
                 .putString(KEY_LAST_PAIRED_UUID, uuid)
                 .apply();
     }
 
+    // 从配置中读取设备信息
+    private Device restoreDevice(String uuid) {
+        SharedPreferences deviceSharedPreferences = MySharedPreferences.getSharedPreferences(uuid);
+
+        String name = deviceSharedPreferences.getString(appContext.getResources().getString(R.string.KEY_DEVICE_NAME), null);
+        DeviceType type = DeviceType.valueOfEX(deviceSharedPreferences.getString(appContext.getResources().getString(R.string.KEY_DEVICE_TYPE), null));
+        Certificate cert = null;
+//        PublicKey pubk = null;
+//        PrivateKey prik = null;
+        try {
+            cert = getX509CertificateFromBase64EncodedString(deviceSharedPreferences.getString(appContext.getResources().getString(R.string.KEY_DEVICE_CERTIFICATE), null));
+//            pubk = getPublicKeyFromBase64EncodedString(deviceSharedPreferences.getString(appContext.getResources().getString(R.string.KEY_DEVICE_PUBLIC_KEY), null));
+//            prik = getPrivateKeyFromBase64EncodedString(deviceSharedPreferences.getString(appContext.getResources().getString(R.string.KEY_DEVICE_PRIVATE_KEY), null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // TODO:cert
+        return new Device(uuid, name, type);
+    }
+
+    // 将设备信息存储下来
     public void storeDevice(Device device) {
-        device.setRecorded(true);
         SharedPreferences deviceSharedPreferences = MySharedPreferences.getSharedPreferences(device.getUUID());
         deviceSharedPreferences.edit()
                 .putString(appContext.getResources().getString(R.string.KEY_DEVICE_NAME), device.getName())
@@ -88,33 +91,16 @@ public class DeviceManager {
                 .apply();
     }
 
-    public Device getPairedDevice() {
-        for (Device d : knownDevices.values()) {
-            if (d.isPaired()) return d;
-        }
-        return null;
-    }
-
-    // 通过网络发现、二维码扫描得到一个新设备
-    public void addNewFoundDevice(Device device) {
-        Device oldDevice = knownDevices.get(device.getUUID());
-        if (oldDevice != null) {
-            // 如果已经存在，则更新信息：名字，配对码，IP地址，支持的插件
-            // FIXME:修改时间？
-            oldDevice.setName(device.getName());
-            oldDevice.setType(device.getType());
-            oldDevice.setPIN(device.getPIN());
-            oldDevice.addIPPortAddresses(device.getIPPortAddress());
-            oldDevice.addSupportFeatures(device.getSupportFeatures());
-        } else {
-            knownDevices.put(device.getUUID(), device);
-        }
+    // 通过网络发现得到一个新设备，直接添加到列表中
+    void addNewFoundDeviceFromNSD(Device device) {
+        knownDevices.put(device.getUUID(), device);
     }
 
     public List<Device> getDevices() {
         return new ArrayList<>(knownDevices.values());
     }
 
+    // 通过UUID获取设备信息
     public Device searchDevice(String uuid) {
         return knownDevices.get(uuid);
     }
@@ -123,30 +109,4 @@ public class DeviceManager {
         return myDevice;
     }
 
-    public Device getPairingDevice() {
-        for (Device d : knownDevices.values()) {
-            if (d.isParing()) return d;
-        }
-        return null;
-    }
-
-    public void setPairingDevice(Device d) {
-        Device pd = getPairedDevice();
-        if (pd != null) pd.setStatus(DeviceUtil.DeviceStatus.Unknown);
-        d.setStatus(DeviceUtil.DeviceStatus.Pairing);
-    }
-
-    // 配对成功，并记录
-    public void setPairingDevice2PairedDevice() {
-        Device pairingDevice = getPairingDevice();
-        pairingDevice.setStatus(DeviceUtil.DeviceStatus.Paired);
-        setLastPairedDevice(pairingDevice);
-        storeDevice(pairingDevice);
-    }
-
-    // 配对失败
-    public void setPairingDevice2UnknownDevice() {
-        Device pairingDevice = getPairingDevice();
-        pairingDevice.setStatus(DeviceUtil.DeviceStatus.Unknown);
-    }
 }

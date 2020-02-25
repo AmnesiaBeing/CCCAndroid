@@ -1,8 +1,9 @@
-package edu.cuc.ccc;
+package edu.cuc.ccc.utils;
 
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.asn1.x500.X500Name;
 import org.spongycastle.asn1.x500.X500NameBuilder;
@@ -17,7 +18,6 @@ import org.spongycastle.operator.jcajce.JcaContentSignerBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -34,63 +34,14 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 import java.util.UUID;
 
+import edu.cuc.ccc.Device;
+import edu.cuc.ccc.MySharedPreferences;
+import edu.cuc.ccc.R;
 import edu.cuc.ccc.backends.DeviceManager;
 
 import static edu.cuc.ccc.MyApplication.appContext;
 
 public class DeviceUtil {
-
-    // 表示设备状态的枚举类型
-    public enum DeviceStatus {
-        // 初始状态
-        Unknown,
-        // 已配对
-        Paired,
-        // 正在配对
-        Pairing,
-        // 配对错误
-        Error
-    }
-
-    public enum AddrType {
-        // 无知者无畏
-        Unknown,
-        LAN,
-        WLAN,
-        BT,
-        // 低功耗蓝牙设备带宽太小，就暂时不考虑了
-//        BLE
-    }
-
-    public static class IPPortAddr {
-        private AddrType type;
-        private InetAddress addr;
-        private int port;
-
-        public IPPortAddr(AddrType type, InetAddress addr, int port) {
-            this.type = type;
-            this.addr = addr;
-            this.port = port;
-        }
-
-        public IPPortAddr(InetAddress addr, int port) {
-            this.type = AddrType.Unknown;
-            this.addr = addr;
-            this.port = port;
-        }
-
-        public InetAddress getAddr() {
-            return addr;
-        }
-
-        public int getPort() {
-            return port;
-        }
-
-        public AddrType getType() {
-            return type;
-        }
-    }
 
     public enum DeviceType {
         Unknown,
@@ -120,7 +71,7 @@ public class DeviceUtil {
     //----------------------------------------------------------------------------------------------
 
     // 解析传入的json数据，如解析不成功返回null，只有在扫描二维码时才需要解析json
-    public static Device parseJSONStr(final String json) {
+    public static Device parseJSONString(final String json) {
         try {
             JSONObject jsonObject = new JSONObject(json);
             int ver = jsonObject.getInt(appContext.getResources().getString(R.string.KEY_VERSION));
@@ -141,6 +92,26 @@ public class DeviceUtil {
         }
     }
 
+    public static String Device2JSONString(Device device, boolean isContainCerts) {
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject();
+            jsonObject.put(appContext.getResources().getString(R.string.KEY_DEVICE_NAME), device.getName());
+            jsonObject.put(appContext.getResources().getString(R.string.KEY_DEVICE_UUID), device.getUUID());
+            jsonObject.put(appContext.getResources().getString(R.string.KEY_DEVICE_TYPE), device.getType().name());
+            String pin = device.getPIN();
+            if (pin != null && !pin.isEmpty()) {
+                jsonObject.put(appContext.getResources().getString(R.string.KEY_PIN), device.getPIN());
+            }
+            if (isContainCerts && device.getCertificate() != null) {
+                jsonObject.put(appContext.getResources().getString(R.string.KEY_DEVICE_CERTIFICATE), getBase64EncodedStringFromCertificate(device.getCertificate()));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
+
     //----------------------------------------------------------------------------------------------
 
     public static void setMyName(String name) {
@@ -153,7 +124,7 @@ public class DeviceUtil {
         }
     }
 
-    static void generateMyInfo() throws OperatorCreationException, CertificateException, NoSuchAlgorithmException {
+    public static void generateMyInfo() throws OperatorCreationException, CertificateException, NoSuchAlgorithmException {
         Device myDevice = DeviceManager.getInstance().getMyDevice();
         SharedPreferences applicationSharedPreferences = MySharedPreferences.getApplicationSharedPreferences();
 
@@ -204,7 +175,7 @@ public class DeviceUtil {
                 .apply();
     }
 
-    static void loadMyInfo() throws InvalidKeySpecException, NoSuchAlgorithmException, CertificateException {
+    public static void loadMyInfo() throws InvalidKeySpecException, NoSuchAlgorithmException, CertificateException {
         Device myDevice = DeviceManager.getInstance().getMyDevice();
         SharedPreferences applicationSharedPreferences = MySharedPreferences.getApplicationSharedPreferences();
 

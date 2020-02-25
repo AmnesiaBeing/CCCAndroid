@@ -1,4 +1,4 @@
-package edu.cuc.ccc.plugins.clipboardplugin;
+package edu.cuc.ccc.plugins.clipboard;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -8,7 +8,7 @@ import android.content.Context;
  *  从Android10开始，只有获得焦点的应用才能访问剪贴板。
  */
 
-public class ClipboardHelper {
+public class ClipboardUtil {
     public static String getClipboardContent(Context ctx) {
         ClipboardManager cbm = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
         if (cbm != null) {

@@ -2,26 +2,27 @@
     <string name="app_name">传传传</string>
     <string name="title_add_tag_activity">加加加</string>
     <string name="title_scan_QRCode_activity">扫扫扫</string>
-    <string name="help_add_pair">配对新设备↑</string>
+    <string name="help_add_pair">配对↑信息↑</string>
     <string name="help_qrcode">使用二维码配对↑</string>
     <string name="function">功能</string>
     <string name="plus">添加</string>
+    <string name="camera">添加</string>
     <string name="fun_recvclipboard">获取远端剪贴板</string>
     <string name="fun_sendclipboard">分享本机剪贴板</string>
     <string name="fun_sendfile">发送文件（未实现）</string>
     <string name="fun_recvfile">接收文件（未实现）</string>
     <string name="fun_sharescreen">屏幕传输（未实现）</string>
-    <!--    <string name="step0">步骤0：打开电脑端管理程序。</string>-->
-    <!--    <string name="step1">步骤1：扫描屏幕上的二维码。</string>-->
+    <string name="step0">步骤0：打开电脑端管理程序。</string>
+    <string name="step1">步骤1：扫描屏幕上的二维码。</string>
     <string name="step2">在该页面下，随时可将配对信息写入NFC标签。</string>
-    <string name="tip_select_device">请选择需要配对的设备：</string>
+    <string name="tip_device">配对设备</string>
     <string name="imok">程序已打开</string>
     <string name="scanQRCode">二维码扫描</string>
     <string name="rationale_camera">请求照相机权限。</string>
     <string name="scanQRCode_tip_ok">将二维码放入框内，即可自动扫描</string>
     <string name="scanQRCode_tip_dark">环境过暗，请打开闪光灯</string>
     <string name="scanQRCode_tip_error">打开相机出错</string>
-    <string name="help_add_tag">写入NFC标签</string>
+    <string name="write_tag">写入NFC标签↑</string>
     <string name="preference_file_key">mySharedPreferences</string>
     <string name="scan_QRCode_err">二维码数据不正确，请重新扫描</string>
     <string name="scan_QRCode_ok">二维码扫描成功，请进行下一步步骤</string>
@@ -36,6 +37,9 @@
     <string name="tip_nfc_prepared">请将手机靠近NFC标签</string>
     <string name="tip_paired_device">当前已配对设备：</string>
     <string name="KEY_PIN">PIN</string>
-    <string name="tip_unpaired">当前无配对设备。</string>
+    <string name="tip_unpaired">当前无连接。</string>
+    <string name="info">查看设备信息</string>
+    <string name="tip_my_device">本设备：</string>
+    <string name="tip_paring">正在连接。。。</string>
 
 </resources>

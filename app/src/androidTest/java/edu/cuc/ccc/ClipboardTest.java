@@ -9,7 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import edu.cuc.ccc.plugins.clipboardplugin.ClipboardHelper;
+import edu.cuc.ccc.plugins.clipboard.ClipboardUtil;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,6 +24,6 @@ public class ClipboardTest {
 
         assertEquals("edu.cuc.ccc", appContext.getPackageName());
 
-        Log.i(TAG, ClipboardHelper.getClipboardContent(appContext));
+        Log.i(TAG, ClipboardUtil.getClipboardContent(appContext));
     }
 }

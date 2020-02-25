@@ -18,7 +18,6 @@ import java.io.IOException;
 
 import edu.cuc.ccc.Device;
 import edu.cuc.ccc.R;
-import edu.cuc.ccc.backends.DeviceManager;
 
 public class NFCHelper {
     private static String TAG = NFCHelper.class.getSimpleName();
@@ -34,7 +33,10 @@ public class NFCHelper {
 
     private NFCTagEventListener mListener;
 
-    private Device targetDevice;
+    // 要写入的信息，其实只需要uuid而已
+    private String targetDeviceUUID;
+    // 使能端
+    private boolean enable = false;
 
     public NFCHelper(Context context) {
         this.mContext = context;
@@ -48,14 +50,14 @@ public class NFCHelper {
     }
 
     public void setupForegroundDispatch() {
-//        if (!enable) return;
+        if (!enable) return;
         if (mAdapter == null) return;
         mAdapter.enableForegroundDispatch((Activity) mContext, mPendingIntent, mFilters, mTechLists);
         Log.i("Foreground dispatch", "setupForegroundDispatch");
     }
 
     public void undoForegroundDispatch() {
-//        if (!enable) return;
+        if (!enable) return;
         if (mAdapter == null) return;
         mAdapter.disableForegroundDispatch((Activity) mContext);
         Log.i("Foreground dispatch", "undoForegroundDispatch");
@@ -66,16 +68,12 @@ public class NFCHelper {
         Log.i("Foreground dispatch", "Discovered tag with intent: " + intent);
         mTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         // 有写入数据时才写入内容嘛
-        if (targetDevice == null) {
-            targetDevice = DeviceManager.getInstance().getPairedDevice();
-        }
-        if (targetDevice != null) {
+        if (targetDeviceUUID != null) {
             writeTag();
         }
-        // TODO:判断标签是否已经写过同类型的数据？
     }
 
-    // TODO:检测NFC功能是否存在，并且判断是否已经开启，并显示提示消息
+    // TODO:回调函数，检测NFC功能是否存在，并且判断是否已经开启，并显示提示消息
     public boolean isSupportNFC() {
         return (mAdapter != null);
     }
@@ -84,13 +82,10 @@ public class NFCHelper {
         return mAdapter.isEnabled();
     }
 
+    // 回调函数接口
     public void setNFCTagWriteListener(NFCTagEventListener listener) {
         mListener = listener;
     }
-
-//    public void refreshWriteContent() {
-//        targetDevice = DeviceManager.getInstance().getPairedDevice();
-//    }
 
     public interface NFCTagEventListener {
         void onNFCTagWriteCompleted();
@@ -107,7 +102,7 @@ public class NFCHelper {
         // 中间的记录为信任目标设备所需的加密信息（明文存储？）
         return new NdefMessage(new NdefRecord[]{
                 NdefRecord.createExternal("ccc.local", "ccctag", new byte[0]),
-                NdefRecord.createTextRecord(null, targetDevice.getUUID()),
+                NdefRecord.createTextRecord(null, targetDeviceUUID),
                 NdefRecord.createApplicationRecord(mContext.getPackageName())});
     }
 
@@ -152,11 +147,11 @@ public class NFCHelper {
     }
 
     // 设置需要写入的设备信息
-    public void setWriteContent(Device device) {
-        this.targetDevice = device;
+    public void setWriteContent(String deviceUUID) {
+        this.targetDeviceUUID = deviceUUID;
     }
-//
-//    public void setEnable(boolean en) {
-//        this.enable = en;
-//    }
+
+    public void setEnable(boolean en) {
+        this.enable = en;
+    }
 }

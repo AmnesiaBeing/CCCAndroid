@@ -13,11 +13,13 @@ public class MySharedPreferences {
         return ret;
     }
 
+    // 获取全局的设置
     public static SharedPreferences getApplicationSharedPreferences() {
         return MyApplication.appContext.getSharedPreferences(MyApplication.appContext.getString(R.string.KEY_PREF), Context.MODE_PRIVATE);
     }
 
-    public static SharedPreferences getSharedPreferences(String uuid) {
-        return MyApplication.appContext.getSharedPreferences(uuid, Context.MODE_PRIVATE);
+    // 获取插件或者设备自身的设置
+    public static SharedPreferences getSharedPreferences(String name) {
+        return MyApplication.appContext.getSharedPreferences(name, Context.MODE_PRIVATE);
     }
 }

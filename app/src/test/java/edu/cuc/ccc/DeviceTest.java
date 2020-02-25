@@ -21,7 +21,7 @@ public class DeviceTest {
     public void testParseDeviceInfoJson2() {
         // test OK
         try {
-//            Device.parseJSONStr(testJSONString2);
+//            Device.parseJSONString(testJSONString2);
         } catch (Exception e) {
 
         }

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "edu.cuc.ccc.rpc";
+option java_outer_classname = "CCCProto";
+option objc_class_prefix = "CCC";
+
+package ccc;
+
+service CCC {
+  // SayHello
+  rpc sayHello (Content) returns (Content) {}
+  // Clipboard
+  rpc changeClipboard (Content) returns (Content) {}
+}
+
+message Content {
+  string content = 1;
+}

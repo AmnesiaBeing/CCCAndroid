@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/app_bar_camera"
+        android:icon="@drawable/ic_camera_alt_white_24dp"
+        android:title="@string/scanQRCode"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/app_bar_info"
+        android:icon="@drawable/ic_settings_white_24dp"
+        android:title="@string/info"
+        app:showAsAction="ifRoom" />
+</menu>

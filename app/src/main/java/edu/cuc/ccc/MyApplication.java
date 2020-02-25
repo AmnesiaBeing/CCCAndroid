@@ -3,22 +3,18 @@ package edu.cuc.ccc;
 import android.app.Application;
 import android.content.Context;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
-
-import edu.cuc.ccc.backends.BackendService;
 import edu.cuc.ccc.backends.DeviceManager;
+import edu.cuc.ccc.backends.NSDHandler;
 import edu.cuc.ccc.plugins.PluginFactory;
 
-import static edu.cuc.ccc.DeviceUtil.generateMyInfo;
-import static edu.cuc.ccc.DeviceUtil.loadMyInfo;
+import static edu.cuc.ccc.utils.DeviceUtil.generateMyInfo;
+import static edu.cuc.ccc.utils.DeviceUtil.loadMyInfo;
 
 public class MyApplication extends Application {
 
     public static Context appContext;
 
-    // TODO:如何优化加载顺序？
+    // 20200221重新思考了程序的加载顺序
     @Override
     public void onCreate() {
         super.onCreate();
@@ -37,7 +33,6 @@ public class MyApplication extends Application {
                 e.printStackTrace();
             }
         }
-        BackendService.startBackendService(this);
-        PluginFactory.initPluginInfo();
+        new NSDHandler().startNSDHandler();
     }
 }

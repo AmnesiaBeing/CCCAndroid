@@ -1,6 +1,5 @@
 package edu.cuc.ccc.ui;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
@@ -25,27 +24,21 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.cuc.ccc.Device;
-import edu.cuc.ccc.DeviceUtil;
 import edu.cuc.ccc.R;
 import edu.cuc.ccc.backends.DeviceManager;
 import edu.cuc.ccc.helpers.NFCHelper;
 import edu.cuc.ccc.plugins.PluginBase;
 import edu.cuc.ccc.plugins.PluginFactory;
-import edu.cuc.ccc.plugins.pairplugin.PairPlugin;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
+import edu.cuc.ccc.plugins.connection.ConnectionPlugin;
 
-public class DevicePairActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, NFCHelper.NFCTagEventListener, PairPlugin.PairRequestCallback {
-    private static String TAG = DevicePairActivity.class.getSimpleName();
+public class DeviceInfoActivityBak extends AppCompatActivity implements NFCHelper.NFCTagEventListener, ConnectionPlugin.PairRequestCallback {
+    private static String TAG = DeviceInfoActivityBak.class.getSimpleName();
 
     private NFCHelper nfcHelper;
-    private static final int RC_CAMERA_PERM = 123;
 
     public static final int PLUGIN_TASK_COMPLETE = 1;
 
@@ -56,7 +49,7 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == PLUGIN_TASK_COMPLETE) {
                 adapter.notifyDataSetChanged();
-                Toast.makeText(DevicePairActivity.this, (String) msg.obj, Toast.LENGTH_LONG).show();
+                Toast.makeText(DeviceInfoActivityBak.this, (String) msg.obj, Toast.LENGTH_LONG).show();
             } else {
                 super.handleMessage(msg);
             }
@@ -89,7 +82,7 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
 
         lv_devices.setOnItemClickListener((parent, view, position, id) -> {
             DeviceManager.getInstance().setPairingDevice((Device) adapter.getItem(position));
-            PluginFactory.doPluginProcess("pair", DevicePairActivity.this);
+            PluginFactory.doPluginProcess("pair", DeviceInfoActivityBak.this);
             adapter.notifyDataSetChanged();
         });
 
@@ -185,7 +178,7 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
                 ((TextView) view.findViewById(R.id.item_device_name)).setText(device.getName());
 
                 ((ImageView) view.findViewById(R.id.item_device_type)).
-                        setImageDrawable(DevicePairActivity.this.getDrawable(device.getType().getDrawableId()));
+                        setImageDrawable(DeviceInfoActivityBak.this.getDrawable(device.getType().getDrawableId()));
 
                 ImageView iv = view.findViewById(R.id.item_device_paired);
                 View pb = view.findViewById(R.id.item_device_pairing);
@@ -240,68 +233,15 @@ public class DevicePairActivity extends AppCompatActivity implements EasyPermiss
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.camera, menu);
+        menuInflater.inflate(R.menu.write, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.app_bar_add) {
-            startScanQRCodeActivityForResult();
+        if (item.getItemId() == R.id.app_bar_write_tag) {
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    // 通过扫二维码方式配对将，认为直接能够配对上:)
-    // 扫描后返回的结果给DeviceInfo解析一下
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode != 0 || resultCode != 0) return;
-        if (data == null) return;
-        String result = data.getStringExtra("RESULT");
-        if (result == null) return;
-        Log.i(TAG, result);
-        Device targetDevice = DeviceUtil.parseJSONStr(result);
-        if (targetDevice == null) {
-            Toast.makeText(this, R.string.scan_QRCode_err, Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, R.string.scan_QRCode_ok, Toast.LENGTH_LONG).show();
-            ((TextView) findViewById(R.id.tv_scan_result)).setText(String.format("%s%s", getString(R.string.dev_name), targetDevice.getName()));
-            // FIXME:此处存在设计上的逻辑问题
-            DeviceManager.getInstance().addNewFoundDevice(targetDevice);
-            DeviceManager.getInstance().setPairingDevice(targetDevice);
-            nfcHelper.setWriteContent(targetDevice);
-        }
-    }
-
-    @AfterPermissionGranted(RC_CAMERA_PERM)
-    public void startScanQRCodeActivityForResult() {
-        if (EasyPermissions.hasPermissions(this, Manifest.permission.CAMERA)) {
-            startActivityForResult(new Intent(this, ScanQRCodeActivity.class), 0);
-        } else {
-            EasyPermissions.requestPermissions(
-                    this,
-                    getString(R.string.rationale_camera),
-                    RC_CAMERA_PERM,
-                    Manifest.permission.CAMERA);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-
     }
 
     @Override

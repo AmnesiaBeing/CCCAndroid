@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'com.google.protobuf'
+apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 29
@@ -24,6 +24,25 @@ android {
     }
 }
 
+protobuf {
+    protoc { artifact = 'com.google.protobuf:protoc:3.11.0' }
+    plugins {
+        grpc { artifact = 'io.grpc:protoc-gen-grpc-java:1.26.0' }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { option 'lite' }
+            }
+            task.plugins {
+                grpc { // Options added to --grpc_out
+                    option 'lite'
+                }
+            }
+        }
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -32,24 +51,30 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    testImplementation 'junit:junit:4.13'
-    testImplementation 'org.json:json:20190722'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    // 二维码扫描模块，自己写是不可能的，只能引用别人写的来过过日子什么的
+    // 二维码扫描
     implementation 'cn.bingoogolapple:bga-qrcode-zbar:1.3.7'
 
-    // 简化申请权限代码？的模块
+    // 简化申请权限
     implementation 'pub.devrel:easypermissions:3.0.0'
 
     // 证书生成
     implementation 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
 
-    // 简化http通信操作
-    implementation('com.squareup.okhttp3:okhttp:4.4.0')
-
     // 插件可加载化
     implementation 'org.atteo.classindex:classindex:3.9'
     annotationProcessor 'org.atteo.classindex:classindex:3.9'
+
+    // gRPC
+    implementation 'io.grpc:grpc-okhttp:1.26.0'
+    implementation 'io.grpc:grpc-protobuf-lite:1.26.0'
+    implementation 'io.grpc:grpc-stub:1.26.0'
+    implementation 'javax.annotation:javax.annotation-api:1.2'
+
+    // test
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.json:json:20190722'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
 }

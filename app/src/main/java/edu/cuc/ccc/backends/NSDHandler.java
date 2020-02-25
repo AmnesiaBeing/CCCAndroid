@@ -7,12 +7,21 @@ import android.util.Log;
 
 import edu.cuc.ccc.Device;
 
-import static edu.cuc.ccc.DeviceUtil.*;
+import static edu.cuc.ccc.utils.DeviceUtil.*;
+import static edu.cuc.ccc.MyApplication.appContext;
 
 // 负责管理网络发现的的类
-class NSDHandler {
+public class NSDHandler {
 
     private final static String TAG = NSDHandler.class.getSimpleName();
+
+    private static NSDHandler instance;
+
+    static NSDHandler getInstance() {
+        return instance;
+    }
+
+    //----------------------------------------------------------------------------------------------
 
     // 如何获取手机名称or自行设置？
     private final static String MyServiceName = "AAA";
@@ -23,18 +32,25 @@ class NSDHandler {
 
     private NsdManager nsdManager;
 
-    NSDHandler(Context context) {
-        nsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+    private boolean start = false;
+
+    public NSDHandler() {
+        instance = this;
+        nsdManager = (NsdManager) appContext.getSystemService(Context.NSD_SERVICE);
     }
 
-    void onCreate() {
+    public void startNSDHandler() {
+        if (start) return;
         initializeDiscoveryListener();
         initializeResolveListener();
         discoveryServices();
+        start = true;
     }
 
-    void onDestroy() {
+    public void stopNSDHandler() {
+        if (!start) return;
         stopDiscoveryServices();
+        start = false;
     }
 
     private void initializeDiscoveryListener() {
@@ -106,16 +122,15 @@ class NSDHandler {
                 Log.e(TAG, "Resolve Succeeded. " + serviceInfo);
                 Device device = new Device();
                 device.setName(serviceInfo.getServiceName());
-                device.addIPPortAddress(
-                        new IPPortAddr(serviceInfo.getHost(), serviceInfo.getPort())
-                );
+                device.setIPAddress(serviceInfo.getHost());
+                device.setPortFromNetwork(serviceInfo.getPort());
                 byte[] rawDT = serviceInfo.getAttributes().get("DT");
                 byte[] rawUUID = serviceInfo.getAttributes().get("UUID");
                 if (rawUUID == null) return;
                 device.setType((rawDT != null) ?
                         DeviceType.valueOfEX(new String(rawDT)) : DeviceType.Unknown);
                 device.setUUID(new String(rawUUID));
-                DeviceManager.getInstance().addNewFoundDevice(device);
+                DeviceManager.getInstance().addNewFoundDeviceFromNSD(device);
             }
         };
     }

@@ -3,11 +3,15 @@ package edu.cuc.ccc.plugins;
 import android.content.Context;
 import android.view.View;
 
-public abstract class PluginBase {
+import edu.cuc.ccc.Device;
+
+public abstract class Plugin {
     // 能够实现每个类自行生成这个TAG字符串嘛？
-    private static final String TAG = PluginBase.class.getSimpleName();
+    private static final String TAG = Plugin.class.getSimpleName();
 
     protected String name;
+
+    protected Device targetDevice;
 
     // 插件名称
     public abstract String getPluginName();
@@ -21,15 +25,5 @@ public abstract class PluginBase {
         return null;
     }
 
-    public abstract void process(PluginProcessCallback callback);
-
-    public interface PluginProcessCallback {
-        // 这个插件需要说点什么
-        void PluginProcessMessage(PluginBase plugin, String str);
-
-        // 这个插件执行完毕
-        void PluginProcessComplete(PluginBase plugin, String str);
-
-    }
-
+    public abstract void pluginExecute();
 }

@@ -1,8 +1,5 @@
 package edu.cuc.ccc.plugins;
 
-import android.content.Context;
-import android.util.Log;
-
 import org.atteo.classindex.ClassIndex;
 import org.atteo.classindex.IndexAnnotated;
 
@@ -19,19 +16,18 @@ public class PluginFactory {
     }
 
     // 使用kv数据结构存储加载好的插件，把名称和插件类对应起来
-    private static final Map<String, PluginBase> pluginInfo = new HashMap<>();
+    private static final Map<String, Plugin> pluginInfo = new HashMap<>();
 
-    public static Map<String, PluginBase> getPlugins() {
+    public static Map<String, Plugin> getPlugins() {
         return pluginInfo;
     }
 
-    // TODO:实现快慢加载？
-    public static void initPluginInfo() {
+    public static void initPluginInfo(String uuid) {
         for (Class<?> pluginClass : ClassIndex.getAnnotated(LoadablePlugins.class)) {
-            PluginBase plugin;
+            Plugin plugin;
             try {
                 // newInstance()相当于弱化版的new
-                plugin = ((PluginBase) pluginClass.newInstance());
+                plugin = ((Plugin) pluginClass.newInstance());
             } catch (Exception e) {
                 e.printStackTrace();
                 continue;
@@ -40,12 +36,8 @@ public class PluginFactory {
         }
     }
 
-    // 执行插件
-    public static void doPluginProcess(String pluginName, PluginBase.PluginProcessCallback callback) {
-        PluginBase plugin = pluginInfo.get(pluginName);
-        if (plugin != null) {
-            Log.e(TAG, "doPluginProcess: " + pluginName);
-            plugin.process(callback);
-        }
+    public static void pluginExecute(String pluginName) {
+        Plugin plugin = pluginInfo.get(pluginName);
+        if (plugin != null) plugin.pluginExecute();
     }
 }

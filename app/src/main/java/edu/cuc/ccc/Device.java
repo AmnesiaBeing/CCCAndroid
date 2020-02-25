@@ -2,17 +2,14 @@ package edu.cuc.ccc;
 
 import android.util.ArraySet;
 
+import java.net.InetAddress;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import edu.cuc.ccc.DeviceUtil.DeviceStatus;
-import edu.cuc.ccc.DeviceUtil.DeviceType;
-import edu.cuc.ccc.DeviceUtil.IPPortAddr;
+import edu.cuc.ccc.utils.DeviceUtil.DeviceType;
+import io.grpc.ManagedChannel;
 
 /*
     描述设备信息的包，以JSON格式传输。
@@ -60,26 +57,27 @@ public class Device {
     // 设备ID
     private String mUUID;
     // 设备类型
-    private DeviceUtil.DeviceType mType = DeviceUtil.DeviceType.Unknown;
+    private DeviceType mType = DeviceType.Unknown;
     // 通过网络发现得到的IP地址与端口号
-    private List<IPPortAddr> ipPortAddrs = new ArrayList<>();
-    // TODO:通过二维码添加得到的物理信息
+    private InetAddress ipAddrFromNetwork;
+    private int portFromNetwork;
+    // 是否已信任？
+    private boolean trusted;
+    // TODO:通过WIFI-P2P得到的IP地址与端口号（待调整，因为电脑作为GO，IP是已知的）
+//    private IPPortAddr ipPortAddrFromWifiP2P;
+    // TODO:通过二维码添加得到的物理信息（蓝牙和WIFI-P2P-GO）
     //
     // 通过二维码扫描会有个PIN码
     private String mPIN;
     // 设备支持的插件
     private Set<String> mSupportFeatures = new ArraySet<>();
-    // 设备配对状态
-    private DeviceStatus mStatus = DeviceStatus.Unknown;
     // 设备证书
     private Certificate mCertificate;
     // 设备密钥（私钥只有自己知道）
     private PublicKey mPublicKey;
     private PrivateKey mPrivateKey;
-    // 是否记录
-    private boolean mRecorded = false;
-    // 是否发现
-    private boolean mDiscovered = false;
+    // gRPC channel
+    private ManagedChannel channel;
 
     //----------------------------------------------------------------------------------------------
 
@@ -91,16 +89,20 @@ public class Device {
         this.mProtocolVersion = mProtocolVersion;
     }
 
-    public List<IPPortAddr> getIPPortAddress() {
-        return ipPortAddrs;
+    public InetAddress getIpAddrFromNetwork() {
+        return ipAddrFromNetwork;
     }
 
-    public void addIPPortAddress(IPPortAddr addr) {
-        ipPortAddrs.add(addr);
+    public void setIPAddress(InetAddress addr) {
+        ipAddrFromNetwork = addr;
     }
 
-    public void addIPPortAddresses(List<IPPortAddr> addrs) {
-        ipPortAddrs.addAll(addrs);
+    public int getIpPortFromNetwork() {
+        return portFromNetwork;
+    }
+
+    public void setPortFromNetwork(int port) {
+        portFromNetwork = port;
     }
 
     public String getName() {
@@ -118,26 +120,6 @@ public class Device {
     public void setType(DeviceType deviceType) {
         if (deviceType == null) deviceType = DeviceType.Unknown;
         this.mType = deviceType;
-    }
-
-    public boolean isPaired() {
-        return this.mStatus == DeviceStatus.Paired;
-    }
-
-    public boolean isParing() {
-        return this.mStatus == DeviceStatus.Pairing;
-    }
-
-    public boolean isRecorded() {
-        return mRecorded;
-    }
-
-    public void setRecorded(boolean value) {
-        mRecorded = value;
-    }
-
-    public boolean isDiscovered() {
-        return mDiscovered;
     }
 
     public String getUUID() {
@@ -184,19 +166,27 @@ public class Device {
         this.mSupportFeatures.addAll(supportFeatures);
     }
 
-    public DeviceStatus getStatus() {
-        return mStatus;
-    }
-
-    public void setStatus(DeviceStatus status) {
-        this.mStatus = status;
-    }
-
     public String getPIN() {
         return mPIN;
     }
 
     public void setPIN(String PIN) {
         this.mPIN = PIN;
+    }
+
+    public boolean isTrusted() {
+        return trusted;
+    }
+
+    public void setTrusted(boolean trusted) {
+        this.trusted = trusted;
+    }
+
+    public ManagedChannel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(ManagedChannel channel) {
+        this.channel = channel;
     }
 }

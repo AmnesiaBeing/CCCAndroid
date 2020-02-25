@@ -51,10 +51,10 @@ public class ScanQRCodeActivity extends AppCompatActivity implements QRCodeView.
     private void vibrate() {
         Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         if (vibrator != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
-            else {
-                // TODO:
+            } else {
+                vibrator.vibrate(VibrationEffect.EFFECT_TICK);
             }
         }
     }

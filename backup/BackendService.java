@@ -25,9 +25,7 @@ public class BackendService extends Service {
     }
 
     private NotificationHelper notificationHelper;
-//    private BTHelper btHelper;
-    private NSDHandler nsdHandler;
-//    private NetworkHelper networkHelper;
+
 
     private RPCHandler rpcHandler;
 
@@ -47,12 +45,6 @@ public class BackendService extends Service {
         notificationHelper = new NotificationHelper(this);
         notificationHelper.onCreate();
 
-//        btHelper = new BTHelper(this);
-//        btHelper.onCreate();
-
-        nsdHandler = new NSDHandler(this);
-        nsdHandler.onCreate();
-
         rpcHandler = new RPCHandler();
     }
 
@@ -60,8 +52,6 @@ public class BackendService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
         notificationHelper.onDestroy();
-//        btHelper.onDestroy();
-        nsdHandler.onDestroy();
     }
 
     @Nullable
@@ -78,10 +68,6 @@ public class BackendService extends Service {
         else
             context.startService(intent);
     }
-
-//    public NSDHandler getNsdHandler() {
-//        return nsdHandler;
-//    }
 
     public RPCHandler getRpcHandler() {
         return rpcHandler;

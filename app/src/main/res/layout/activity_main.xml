@@ -29,55 +29,31 @@
         android:visibility="gone" />
 
     <LinearLayout
+        android:id="@+id/ll_tip_paring"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_tip_paring"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/tip_paring" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/plugins_small_ui"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@drawable/divider_white_1dp"
         android:orientation="vertical" />
-
-
-    <!--    <LinearLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:orientation="vertical"-->
-    <!--        android:visibility="invisible">-->
-
-    <!--        <TextView-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:text="默认连接方式：" />-->
-
-    <!--        <RadioGroup-->
-    <!--            android:id="@+id/rg_trans_method"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content">-->
-
-    <!--            <RadioButton-->
-    <!--                android:id="@+id/rb_trans_method_auto"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:text="自动" />-->
-
-    <!--            <RadioButton-->
-    <!--                android:id="@+id/rb_trans_method_wlan"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:text="优先使用WLAN（这是必须的）" />-->
-
-    <!--            <RadioButton-->
-    <!--                android:id="@+id/rb_trans_method_p2p"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:text="优先使用WLAN直连（未实现）" />-->
-
-    <!--            <RadioButton-->
-    <!--                android:id="@+id/rb_trans_method_bt"-->
-    <!--                android:layout_width="match_parent"-->
-    <!--                android:layout_height="wrap_content"-->
-    <!--                android:text="优先使用蓝牙（未实现）" />-->
-    <!--        </RadioGroup>-->
-
-
-    <!--    </LinearLayout>-->
 
 </LinearLayout>

@@ -48,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.cuc.ccc.ui.DevicePairActivity"
+            android:name="edu.cuc.ccc.ui.DeviceInfoActivity"
             android:label="@string/title_add_tag_activity" />
         <activity
             android:name="edu.cuc.ccc.ui.ScanQRCodeActivity"
